@@ -1,0 +1,20 @@
+{
+  "name": "コンサルスキル診断",
+  "short_name": "スキル診断",
+  "description": "40問の採点から5領域スコアと20の土台スキルを自動算出する育成診断ツール",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1a3560",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

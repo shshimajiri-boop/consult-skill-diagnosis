@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>コンサルスキル診断</title>
+<!-- iPhoneのホーム画面に追加したときアプリのように全画面で開くための設定 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="スキル診断">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a3560">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<!-- ホーム画面アイコン（SVGをそのまま埋め込み） -->
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --navy: #1a3560;
+  --navy-mid: #2d5080;
+  --navy-light: #eef4fc;
+  --navy-border: #c0d4f0;
+  --orange: #e07b2c;
+  --orange-light: #fff6ee;
+  --green: #1a7a3c;
+  --green-light: #f0fff5;
+  --red: #c0392b;
+  --red-light: #fdf0f0;
+  --gray-text: #4a6a9a;
+  --text: #1a3560;
+  --bg: #ffffff;
+  --bg2: #f5f8fd;
+  --border: #c8d8f0;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(26,53,96,.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+.page { display: none; max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem; }
+.page.active { display: block; }
+
+/* ─── ボタン ─── */
+.btn { border: none; border-radius: 8px; padding: 11px 26px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background .18s; }
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-mid); }
+.btn-secondary { background: var(--bg); color: var(--navy); border: 1.5px solid var(--navy); }
+.btn-secondary:hover { background: var(--navy-light); }
+.btn-pdf { background: var(--orange); color: #fff; }
+.btn-pdf:hover { background: #c5691f; }
+
+/* ─── カード ─── */
+.card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.card-title { font-size: 15px; font-weight: 600; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 8px; margin-bottom: 1rem; }
+
+/* ─── TOP ─── */
+.top-hero { text-align: center; padding: 3rem 1rem 2rem; }
+.top-hero h1 { font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.top-hero p { color: var(--gray-text); margin-bottom: 2rem; font-size: 15px; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; margin: 1.5rem 0; }
+.feat-card { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: var(--radius); padding: 1rem; text-align: center; }
+.feat-card .icon { font-size: 24px; color: var(--navy); margin-bottom: 6px; }
+.feat-card h3 { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+.feat-card p { font-size: 11px; color: var(--gray-text); }
+
+/* ─── 入力フォーム ─── */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: .75rem; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 12px; color: var(--gray-text); }
+.form-group input, .form-group textarea { border: 1px solid var(--navy-border); border-radius: 7px; padding: 8px 12px; font-size: 14px; background: var(--bg); color: var(--text); }
+.section-hdr { background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 8px; margin: 1.5rem 0 1rem; font-size: 13px; font-weight: 600; }
+.q-block { border: 1px solid var(--navy-border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: .75rem; background: var(--bg2); transition: border-color .2s; }
+.q-block.error-block { border-color: var(--red); background: var(--red-light); }
+.q-label { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+.q-text { font-size: 13px; color: var(--text); margin-bottom: 8px; line-height: 1.6; }
+.criteria-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+.criteria-table td { padding: 3px 8px; border-bottom: 1px solid var(--navy-border); vertical-align: top; }
+.criteria-table td:first-child { width: 28px; font-weight: 700; color: var(--navy); background: var(--navy-light); text-align: center; white-space: nowrap; }
+.criteria-table tr:last-child td { border-bottom: none; }
+.score-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.score-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--navy-border); background: var(--bg); font-size: 14px; font-weight: 600; cursor: pointer; color: var(--navy); transition: all .15s; }
+.score-btn.selected { background: var(--navy); border-color: var(--navy); color: #fff; }
+.score-btn.error-btn { border-color: var(--red); color: var(--red); }
+.memo-input { width: 100%; font-size: 12px; padding: 5px 8px; margin-top: 8px; border: 1px solid var(--navy-border); border-radius: 6px; color: var(--text); background: var(--bg); resize: vertical; }
+.err-msg { color: var(--red); font-size: 13px; padding: 10px 14px; background: var(--red-light); border: 1px solid #e8b0a0; border-radius: 7px; margin-bottom: 1rem; }
+.btn-row { display: flex; gap: 10px; justify-content: space-between; margin-top: 1.5rem; flex-wrap: wrap; }
+.progress-bar-wrap { height: 4px; background: var(--navy-border); border-radius: 2px; margin-bottom: 1.5rem; }
+.progress-bar { height: 100%; background: var(--navy); border-radius: 2px; transition: width .3s; }
+
+/* ─── 結果画面 ─── */
+.result-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 1.25rem; }
+.meta-bar { font-size: 13px; color: var(--gray-text); display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.meta-bar strong { color: var(--navy); }
+.chart-score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+.score-row { display: flex; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--navy-light); }
+.score-row:last-child { border-bottom: none; }
+.score-bar-outer { flex: 1; margin: 0 10px; height: 7px; background: var(--navy-border); border-radius: 4px; }
+.score-bar-inner { height: 100%; border-radius: 4px; transition: width .6s; }
+.score-num { font-size: 14px; font-weight: 700; min-width: 28px; text-align: right; }
+
+/* 本質課題カード */
+.essence-card { background: var(--navy); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; color: #fff; }
+.essence-card .ec-label { font-size: 11px; opacity: .7; margin-bottom: 5px; letter-spacing: .06em; }
+.essence-card h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+.essence-card p { font-size: 13px; line-height: 1.85; opacity: .92; }
+.theme-pill { display: inline-block; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 500; margin-top: 12px; }
+
+/* サマリーグリッド */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .875rem; margin-bottom: 1.25rem; }
+.sum-item { background: var(--bg2); border: 1px solid var(--navy-border); border-radius: 8px; padding: .875rem 1rem; }
+.sum-label { font-size: 11px; color: var(--gray-text); margin-bottom: 5px; }
+.sum-val { font-size: 15px; font-weight: 700; color: var(--navy); }
+.type-pill { display: inline-block; background: var(--orange); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+.support-pill { display: inline-block; color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+.weak-tag { display: inline-block; background: var(--orange-light); color: #8a4010; border: 1px solid #e8c090; border-radius: 20px; padding: 2px 12px; font-size: 12px; margin: 2px; }
+
+/* 優先強化スキル */
+.skill-card { border: 1px solid var(--navy-border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: .75rem; background: var(--bg2); }
+.skill-num { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.skill-score-pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 12px; }
+.info-box { font-size: 13px; line-height: 1.8; padding: 8px 12px; border-radius: 0 6px 6px 0; margin-bottom: 6px; }
+.info-box.blue { background: var(--navy-light); border-left: 3px solid var(--navy); color: var(--navy); }
+.info-box.orange { background: var(--orange-light); border-left: 3px solid var(--orange); color: #6a3010; }
+.info-box.green { background: var(--green-light); border-left: 3px solid var(--green); color: #0a4020; }
+.conn-tag { display: inline-block; background: var(--navy-light); color: var(--navy); border: 1px solid var(--navy-border); border-radius: 4px; padding: 1px 8px; font-size: 11px; margin: 2px 2px 0 0; }
+
+/* 補助レポート */
+details { margin-bottom: .75rem; }
+details summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--navy); padding: 8px 12px; background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 6px; list-style: none; display: flex; align-items: center; gap: 6px; }
+details summary::before { content: "▶"; font-size: 10px; color: var(--gray-text); transition: transform .2s; }
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-radius: 6px 6px 0 0; }
+.supp-inner { border: 1px solid var(--navy-border); border-top: none; border-radius: 0 0 6px 6px; padding: .75rem 1rem; }
+.supp-skill-row { padding: .875rem 0; border-bottom: 1px solid var(--navy-light); }
+.supp-skill-row:last-child { border-bottom: none; }
+.supp-name { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+.supp-def { font-size: 12px; color: var(--gray-text); margin-bottom: 8px; }
+.supp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+/* 結果ページの入れ子2列ボックス：狭い画面では1列に折りたたむ */
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+@media(max-width:600px){ .cols2 { grid-template-columns: 1fr; } .cols2 > * { grid-column: auto !important; } }
+.supp-cell { background: var(--bg2); border-radius: 6px; padding: 7px 10px; font-size: 12px; }
+.supp-cell .sc-label { font-size: 11px; color: var(--gray-text); margin-bottom: 2px; }
+
+/* スコアバッジ */
+.score-badge { display: inline-block; border-radius: 4px; padding: 1px 8px; font-size: 11px; font-weight: 700; }
+.sb-hi { background: #fef3ec; color: var(--orange); border: 1px solid #f0c090; }
+.sb-mid { background: var(--navy-light); color: var(--navy); border: 1px solid var(--navy-border); }
+.sb-lo { background: var(--red-light); color: var(--red); border: 1px solid #e8a0a0; }
+
+@media(max-width:580px){
+  .chart-score-grid,.summary-grid,.form-row,.supp-grid { grid-template-columns: 1fr !important; }
+  /* 1列化したとき span 2 が幻の2列目を作るのを防ぐ */
+  .summary-grid > *, .supp-grid > *, .chart-score-grid > * { grid-column: auto !important; }
+}
+
+/* ─── タブ ─── */
+.guide-tab {
+  background: none; border: none; padding: 10px 16px; font-size: 13px; font-weight: 500;
+  color: var(--gray-text); cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; white-space: nowrap; transition: color .15s;
+}
+.guide-tab.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 700; }
+.guide-tab:hover { color: var(--navy); }
+.guide-panel { display: none; padding-top: 1.25rem; }
+.guide-panel.active { display: block; }
+#guide-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+#guide-tabs::-webkit-scrollbar { display: none; }
+
+/* ─── モバイル強化 ─── */
+@media(max-width:480px){
+  .page { padding: 1rem 1rem; }
+  .top-hero h1 { font-size: 22px; }
+  .chart-score-grid, .summary-grid, .form-row, .supp-grid { grid-template-columns: 1fr !important; }
+  #chart-score-grid { grid-template-columns: 1fr !important; }
+  .guide-tab { padding: 9px 12px; font-size: 12px; }
+  .btn { padding: 11px 18px; font-size: 13px; }
+  .score-btn { width: 36px; height: 36px; font-size: 13px; }
+  .card { padding: 1rem 1rem; }
+  .criteria-table { font-size: 11px; }
+  .criteria-table td { padding: 3px 5px; }
+  h1 { font-size: 22px !important; }
+  h2 { font-size: 18px !important; }
+}
+@media(max-width:360px){
+  .guide-tab { padding: 8px 10px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOP ===== -->
+<div id="page-top" class="page active">
+  <div class="top-hero">
+    <h1>コンサルスキル診断</h1>
+    <p style="font-size:14px;color:var(--gray-text);margin-bottom:1.5rem;line-height:1.7">40問の採点から5領域スコアと20の土台スキルを自動算出。<br>育成すべきポイントと指導方針を明確にします。</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-primary" id="startBtn" style="font-size:15px;padding:13px 36px">診断を開始する</button>
+      <button class="btn btn-secondary" id="aboutBtn" style="font-size:15px;padding:13px 36px">このアプリについて</button>
+    </div>
+    <p style="font-size:12px;color:var(--gray-text)">所要時間：10〜15分</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem">
+    <div class="feat-card"><div class="icon">📊</div><h3>5領域スコア</h3><p>スキルバランスをレーダーチャートで可視化</p></div>
+    <div class="feat-card"><div class="icon">🏷</div><h3>タイプ診断</h3><p>9タイプのどれかをスコアパターンで判定</p></div>
+    <div class="feat-card"><div class="icon">🔍</div><h3>本質課題</h3><p>スコアの背景にある根本的な課題を特定</p></div>
+    <div class="feat-card"><div class="icon">⭐</div><h3>優先強化スキル</h3><p>今すぐ鍛えるべき土台スキル上位5個</p></div>
+    <div class="feat-card"><div class="icon">📈</div><h3>傾向分析</h3><p>スコアパターンから育成上の行動傾向を検出</p></div>
+    <div class="feat-card"><div class="icon">🔧</div><h3>20土台スキル診断</h3><p>弱点の原因スキルを現状・課題・改善方針付きで表示</p></div>
+  </div>
+</div>
+
+<!-- ===== GUIDE ===== -->
+<div id="page-guide" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem">
+    <div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:3px">このアプリについて</h2>
+      <p style="font-size:13px;color:var(--gray-text)">各タブをタップして詳細を確認してください</p>
+    </div>
+    <button class="btn btn-secondary" id="guideToTopBtn">← TOPへ戻る</button>
+  </div>
+
+  <!-- タブナビ -->
+  <div style="display:flex;gap:0;flex-wrap:wrap;margin-bottom:0;border-bottom:2px solid var(--navy-border)" id="guide-tabs">
+    <button class="guide-tab active" data-tab="tab-structure">診断の構造</button>
+    <button class="guide-tab" data-tab="tab-areas">5領域</button>
+    <button class="guide-tab" data-tab="tab-types">タイプ一覧</button>
+    <button class="guide-tab" data-tab="tab-skills">土台スキル</button>
+    <button class="guide-tab" data-tab="tab-outputs">結果の見方</button>
+    <button class="guide-tab" data-tab="tab-usage">活用方法</button>
+  </div>
+
+  <!-- ── タブ1: 診断の構造 ── -->
+  <div class="guide-panel active" id="tab-structure">
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:1.25rem;line-height:1.7">この診断は「表側の5領域評価」と「裏側の土台スキル分析」の2層構造になっています。40問に答えるだけで両方が自動算出されます。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.25rem">
+      <div style="background:var(--navy-light);border:1px solid var(--navy-border);border-radius:8px;padding:.875rem;text-align:center">
+        <div style="font-size:24px;margin-bottom:6px">📝</div>
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">40問の採点</div>
+        <div style="font-size:12px;color:var(--gray-text)">評価者が対象者を1〜5点で採点。各問に個別の採点基準を記載</div>
+      </div>
+      <div style="background:var(--navy-light);border:1px solid var(--navy-border);border-radius:8px;padding:.875rem;text-align:center">
+        <div style="font-size:24px;margin-bottom:6px">📊</div>
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">5領域スコア算出</div>
+        <div style="font-size:12px;color:var(--gray-text)">5つのコアスキル領域の平均スコアをレーダーチャートで可視化</div>
+      </div>
+      <div style="background:var(--navy-light);border:1px solid var(--navy-border);border-radius:8px;padding:.875rem;text-align:center">
+        <div style="font-size:24px;margin-bottom:6px">🔍</div>
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">20土台スキル分析</div>
+        <div style="font-size:12px;color:var(--gray-text)">弱点の原因となる土台スキルを特定し、育成方針を導出</div>
+      </div>
+    </div>
+    <div style="background:#f0f6ff;border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem;font-size:13px;color:var(--navy);line-height:1.75;margin-bottom:1rem">
+      <strong>なぜ2層構造なのか：</strong>「イシュー思考が低い」という結果だけでは何を鍛えればよいか分かりません。その原因となる土台スキル（論点設定力・仮説思考力・構造化力など）まで特定することで、「何から始めるべきか」が初めて明確になります。
+    </div>
+    <div style="background:var(--navy-light);border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">採点の考え方（1〜5点）</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+        <div style="text-align:center;font-size:12px;background:#fff;border-radius:6px;padding:7px 4px"><div style="font-size:17px;font-weight:700;color:var(--navy)">1</div><div style="color:var(--gray-text)">習得段階<br>継続的な指導が必要</div></div>
+        <div style="text-align:center;font-size:12px;background:#fff;border-radius:6px;padding:7px 4px"><div style="font-size:17px;font-weight:700;color:var(--navy)">2</div><div style="color:var(--gray-text)">支援あり実行<br>上位者の確認が必要</div></div>
+        <div style="text-align:center;font-size:12px;background:#fff;border-radius:6px;padding:7px 4px"><div style="font-size:17px;font-weight:700;color:var(--navy)">3</div><div style="color:var(--gray-text)">自走レベル<br>通常業務は独力可</div></div>
+        <div style="text-align:center;font-size:12px;background:#fff;border-radius:6px;padding:7px 4px"><div style="font-size:17px;font-weight:700;color:var(--navy)">4</div><div style="color:var(--gray-text)">リードレベル<br>安定して高品質</div></div>
+        <div style="text-align:center;font-size:12px;background:#fff;border-radius:6px;padding:7px 4px"><div style="font-size:17px;font-weight:700;color:var(--navy)">5</div><div style="color:var(--gray-text)">型化・展開<br>他者に教えられる</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── タブ2: 5領域 ── -->
+  <div class="guide-panel" id="tab-areas">
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:1rem;line-height:1.7">コンサル人材のスキルを5領域に分類しています。それぞれ8問（一部共有）の採点結果から平均スコアを算出します。</p>
+    <div style="display:flex;flex-direction:column;gap:.6rem">
+      <div style="border:1px solid var(--navy-border);border-radius:8px;overflow:hidden">
+        <div style="background:var(--navy);color:#fff;padding:9px 14px;font-size:13px;font-weight:700">A. プロフェッショナルマインド（PM）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">コンサル人材として信頼される姿勢・責任感・顧客視点・リスク感度を持って行動する力。<br><span style="font-size:12px;color:var(--gray-text)">評価する行動：オーナーシップ・インテグリティ・リスク察知・先回り行動</span></div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;overflow:hidden">
+        <div style="background:var(--navy);color:#fff;padding:9px 14px;font-size:13px;font-weight:700">B. ドキュメンテーション（DOC）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">目的・読み手・判断事項を踏まえ、資料や文書を分かりやすく正確に作成する力。<br><span style="font-size:12px;color:var(--gray-text)">評価する行動：資料構成設計・文章表現・ビジュアル設計・品質管理</span></div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;overflow:hidden">
+        <div style="background:var(--navy);color:#fff;padding:9px 14px;font-size:13px;font-weight:700">C. コミュニケーションデザイン（COM）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">相手・状況・目的に応じて、報連相・質問・説明・合意形成を設計する力。<br><span style="font-size:12px;color:var(--gray-text)">評価する行動：報連相の粒度判断・質問設計・説明構成・期待値調整</span></div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;overflow:hidden">
+        <div style="background:var(--navy);color:#fff;padding:9px 14px;font-size:13px;font-weight:700">D. イシュー思考（ISSUE）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">何を解くべきかを見極め、仮説を立て、ファクトに基づいて示唆を出す力。<br><span style="font-size:12px;color:var(--gray-text)">評価する行動：論点設定・仮説構築・構造化分解・ファクト整理</span></div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;overflow:hidden">
+        <div style="background:var(--navy);color:#fff;padding:9px 14px;font-size:13px;font-weight:700">E. デリバリー力（DEL）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">ゴール・タスク・期限・品質を管理し、成果までやり切る力。<br><span style="font-size:12px;color:var(--gray-text)">評価する行動：ゴール設計・プランニング・進捗管理・リカバリー</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── タブ3: タイプ一覧 ── -->
+  <div class="guide-panel" id="tab-types">
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:.75rem;line-height:1.7">診断結果は「スキルクラス（水準）」「人材タイプ（傾向）」「育成支援レベル（支援の程度）」の3つを分けて表示します。</p>
+
+    <div style="background:var(--navy-light);border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem;margin-bottom:1.25rem;font-size:13px;line-height:1.75">
+      <strong style="color:var(--navy)">3つを分ける理由：</strong>水準・傾向・支援ニーズは別の情報です。同じ「水準が低い人」でも、実行推進型なのか探索思考型なのかで育成方針が変わります。3つを分けることで、より的確な育成判断ができます。
+    </div>
+
+    <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--navy)">① スキルクラス（現在の人材水準）</div>
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem">
+      <div style="border-left:4px solid #1a5c28;background:#f0fff5;border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#1a5c28">Lv5 シニアマネージャークラス</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">総合4.3以上、全領域4.0以上。全体設計・品質責任・育成・レビューを担える</div></div>
+      <div style="border-left:4px solid #1a7a3c;background:#f0fff5;border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#1a7a3c">Lv4 マネージャークラス</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">総合3.8以上、最低領域3.5以上。案件やチームをリードし成果責任を持てる</div></div>
+      <div style="border-left:4px solid #2d80b0;background:#f0f6ff;border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#2d80b0">Lv3 シニアコンサルクラス</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">総合3.2以上、3.0未満の領域が0〜1個。高難度タスクを自走し、部分的に周囲を支援できる</div></div>
+      <div style="border-left:4px solid #6a8aaa;background:var(--navy-light);border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#6a8aaa">Lv2 コンサルクラス</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">総合2.5以上、3.0未満の領域が3個以下。通常業務を一定程度自走できる</div></div>
+      <div style="border-left:4px solid #8a6a4a;background:#fdf8f3;border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#8a6a4a">Lv1 アソシエイトクラス</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">上記以外。基礎業務遂行を習得中で、支援・レビューが継続的に必要な段階</div></div>
+    </div>
+
+    <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--navy)">② 人材タイプ（強みの傾向）</div>
+    <p style="font-size:12px;color:var(--gray-text);margin-bottom:.75rem">弱点からではなく、相対的に高いスキル・領域から判定します。スコアが低くても、最も得意な傾向からタイプを決定します。</p>
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem">
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">実行推進型</div><div style="font-size:12px;color:var(--gray-text)">DEL・タスク進捗管理・レスポンス報連相が相対的に高い。手を動かして前に進める力が強い</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">構造整理型</div><div style="font-size:12px;color:var(--gray-text)">DOC・構造化MECE・情報整理・情報差分把握・課題整理が相対的に高い。情報を整理し構造化して考える力が強い</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">対人調整型</div><div style="font-size:12px;color:var(--gray-text)">COM・説明質問設計・レスポンス報連相・情報差分把握が相対的に高い。関係者との調整・合意形成が得意</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">品質管理型</div><div style="font-size:12px;color:var(--gray-text)">品質意識・差分把握・学習改善姿勢が相対的に高い。正確性・レビュー観点を重視する</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">探索思考型</div><div style="font-size:12px;color:var(--gray-text)">ISSUE・論点設定・仮説思考・具体抽象化・課題整理が相対的に高い。仮説・論点・打ち手を考える力が強い</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">安定運用型</div><div style="font-size:12px;color:var(--gray-text)">DEL・安定稼働リカバリー・品質意識が相対的に高い。期限・進捗・運用を安定させる力が強い</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">成長吸収型</div><div style="font-size:12px;color:var(--gray-text)">学習改善姿勢・誠実性信頼行動が相対的に高い。指摘を吸収し改善につなげる力が強い</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">巻き込み先導型</div><div style="font-size:12px;color:var(--gray-text)">PM・当事者意識・先回りリスク感度・COMが相対的に高い。周囲を巻き込み場を前に進める力が強い</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">バランス型</div><div style="font-size:12px;color:var(--gray-text)">いずれかに偏らず、複数の領域をバランスよく備えている状態</div></div>
+    </div>
+
+    <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--navy)">③ 育成支援レベル（必要な支援の程度）</div>
+    <div style="display:flex;flex-direction:column;gap:.5rem">
+      <div style="border-left:4px solid #c0392b;background:var(--red-light);border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#c0392b">重点支援</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">総合2.0未満、全領域3.0未満、または3.0未満が3個以上。継続的な教育・レビュー・伴走が必要</div></div>
+      <div style="border-left:4px solid var(--orange);background:var(--orange-light);border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--orange)">通常支援</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">3.0未満の領域が1〜2個。定期的なレビュー・助言が必要</div></div>
+      <div style="border-left:4px solid #2d80b0;background:var(--navy-light);border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#2d80b0">自走支援</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">全領域3.0以上かつ総合4.0未満。基本的には自走可能で、必要に応じた助言でよい</div></div>
+      <div style="border-left:4px solid #1a7a3c;background:var(--green-light);border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#1a7a3c">リード支援</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">全領域4.0以上。他者支援・型化・レビュー側への移行を支援する段階</div></div>
+    </div>
+  </div>
+
+  <!-- ── タブ4: 土台スキル ── -->
+  <div class="guide-panel" id="tab-skills">
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:1rem;line-height:1.7">5領域の弱点の原因を分析するための20個の土台スキルです。診断質問のスコアから各スキルのスコアが算出され、現状・課題・改善方針が出力されます。</p>
+    <div style="display:flex;flex-direction:column;gap:.5rem" id="skill-list">
+      <!-- JSで動的生成 -->
+    </div>
+  </div>
+
+  <!-- ── タブ5: 結果の見方 ── -->
+  <div class="guide-panel" id="tab-outputs">
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:1rem;line-height:1.7">診断結果には6つの要素が含まれます。それぞれの役割と見方を確認してください。</p>
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      <div style="border-radius:8px;overflow:hidden;border:1px solid var(--navy-border)">
+        <div style="background:var(--navy);color:#fff;padding:8px 14px;font-size:13px;font-weight:700">① 5領域チャート・スコア</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">レーダーチャートで5領域のバランスを視覚化。赤タグは絶対基準（3.0未満）で課題のある領域、青タグは全体平均より相対的に低い領域を示します。</div>
+      </div>
+      <div style="border-radius:8px;overflow:hidden;border:1px solid var(--navy-border)">
+        <div style="background:var(--navy);color:#fff;padding:8px 14px;font-size:13px;font-weight:700">② 本質課題</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">「どの領域が低い」ではなく、その背景にある根本的な課題を示します。スコアパターン・土台スキルの状態・育成支援レベルを総合して自動生成されます。</div>
+      </div>
+      <div style="border-radius:8px;overflow:hidden;border:1px solid var(--navy-border)">
+        <div style="background:var(--navy);color:#fff;padding:8px 14px;font-size:13px;font-weight:700">③ 優先強化スキル（上位5個）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">20の土台スキルから「今最も鍛えるべき5個」を選定。選定には①絶対スコアの低さ、②全体平均との乖離（相対評価）、③複数領域への波及効果の3軸を使います。各スキルに「なぜ優先か」「改善方針」「鍛えると改善される領域」を表示します。</div>
+      </div>
+      <div style="border-radius:8px;overflow:hidden;border:1px solid var(--navy-border)">
+        <div style="background:var(--navy);color:#fff;padding:8px 14px;font-size:13px;font-weight:700">④ 傾向分析</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">スコアの組み合わせパターンから育成上の注意点を検出します。例：学習・改善姿勢だけが著しく低い場合→「フィードバック耐性が低い可能性」として表示。<br><span style="font-size:12px;color:var(--gray-text)">※ 傾向は可能性の指摘であり断定ではありません。評価者が判断材料として活用してください。</span></div>
+      </div>
+      <div style="border-radius:8px;overflow:hidden;border:1px solid var(--navy-border)">
+        <div style="background:var(--navy);color:#fff;padding:8px 14px;font-size:13px;font-weight:700">⑤ 評価者の指導方針</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">本質課題と弱点領域を踏まえた、評価者向けの具体的な指導アクションを表示します。1on1・育成面談でそのまま使えます。</div>
+      </div>
+      <div style="border-radius:8px;overflow:hidden;border:1px solid var(--navy-border)">
+        <div style="background:var(--navy);color:#fff;padding:8px 14px;font-size:13px;font-weight:700">⑥ 補助レポート（20土台スキル現状診断）</div>
+        <div style="padding:10px 14px;font-size:13px;color:var(--text);line-height:1.65">20スキル全てについて「現状できていること」「現状の課題」「改善方針」を表示。カテゴリ別に折りたたみ表示し、PDFでは全展開されます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── タブ6: 活用方法 ── -->
+  <div class="guide-panel" id="tab-usage">
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:1rem;line-height:1.7">診断結果はPDFで保存して、以下の場面で活用できます。</p>
+    <div style="display:flex;flex-direction:column;gap:.6rem">
+      <div style="border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px">1on1・育成面談</div>
+        <div style="font-size:13px;color:var(--gray-text);line-height:1.65">本質課題と優先強化スキルを軸に、「何から取り組むか」を本人と合意する場として活用。PDFを資料として両者が手元に持って対話する。</div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px">研修設計・育成計画</div>
+        <div style="font-size:13px;color:var(--gray-text);line-height:1.65">優先強化スキルと改善方針をもとに研修テーマを設計。「何を学ばせるか・どう実践させるか」の設計根拠として使う。</div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px">月次レビュー・成長確認</div>
+        <div style="font-size:13px;color:var(--gray-text);line-height:1.65">定期的に診断を実施し、スコアの変化を確認。改善の可視化がメンバーのモチベーションにも繋がる。</div>
+      </div>
+      <div style="border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px">案件アサイン・役割設計</div>
+        <div style="font-size:13px;color:var(--gray-text);line-height:1.65">強み領域・弱み領域を把握したうえで、どの業務・役割を任せるかを判断する材料として活用。</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:1.5rem 0 .5rem">
+    <button class="btn btn-primary" id="guideToInputBtn" style="font-size:15px;padding:13px 40px">診断を始める →</button>
+  </div>
+</div>
+
+<!-- ===== INPUT ===== -->
+<div id="page-input" class="page">
+  <h2 style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">診断入力</h2>
+  <p style="font-size:13px;color:var(--gray-text);margin-bottom:1.25rem">40問のスキル項目を1〜5点で評価してください</p>
+  <div class="card">
+    <div class="card-title">対象者情報</div>
+    <div class="form-row">
+      <div class="form-group"><label>対象者名 <span style="color:var(--red)">*</span></label><input id="targetName" type="text" placeholder="例：山田 太郎"></div>
+      <div class="form-group"><label>評価者名 <span style="color:var(--red)">*</span></label><input id="evaluatorName" type="text" placeholder="例：鈴木 花子"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>評価日 <span style="color:var(--red)">*</span></label><input id="evalDate" type="date"></div>
+      <div class="form-group"><label>所属・チーム</label><input id="team" type="text" placeholder="例：戦略コンサルティング部"></div>
+    </div>
+    <div class="form-group"><label>総評メモ（任意）</label><textarea id="overallMemo" rows="2" style="width:100%;padding:8px;border:1px solid var(--navy-border);border-radius:7px;font-size:13px;color:var(--text);background:var(--bg)" placeholder="全体的な所見・コメントを入力してください"></textarea></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div id="questions-container"></div>
+  <div id="err-msg" class="err-msg" style="display:none"></div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="backToTopBtn">← TOPへ戻る</button>
+    <button class="btn btn-primary" id="submitBtn">診断結果を見る →</button>
+  </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div id="page-result" class="page">
+  <div class="result-header">
+    <div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:2px">診断結果</h2>
+      <div class="meta-bar" id="result-meta"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-secondary" id="resultToTopBtn">TOPへ戻る</button>
+      <button class="btn btn-secondary" id="restartBtn">再診断する</button>
+      <button class="btn btn-pdf" id="pdfBtn">PDFで保存</button>
+    </div>
+  </div>
+
+  <!-- 1. チャート + スコア -->
+  <div class="chart-score-grid" id="chart-score-grid">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">5領域スキルチャート</div>
+      <div style="position:relative;height:240px"><canvas id="radarChart"></canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">5領域スコア</div>
+      <div id="area-scores-list"></div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--navy-light);font-size:13px">
+        総合スコア：<strong id="overall-score-val" style="font-size:20px;color:var(--navy)"></strong>
+        <span style="font-size:12px;color:var(--gray-text)"> / 5.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 本質課題 -->
+  <div id="essence-card" class="essence-card"></div>
+
+  <!-- 3. 診断サマリー -->
+  <div class="summary-grid" id="summary-grid"></div>
+
+  <!-- 4. 優先強化スキル -->
+  <div class="card">
+    <div class="card-title">優先強化スキル（上位5個）</div>
+    <div id="priority-skills"></div>
+  </div>
+
+  <!-- 5. 指導方針 -->
+  <div class="card">
+    <div class="card-title">評価者の指導方針</div>
+    <div id="guidance-section"></div>
+  </div>
+
+  <!-- 6. 改善後の変化 -->
+  <div class="card">
+    <div class="card-title">改善後に期待される変化</div>
+    <div id="change-section"></div>
+  </div>
+
+  <!-- 7. 補助レポート -->
+  <div class="card">
+    <div class="card-title">補助レポート（20土台スキル 現状診断）</div>
+    <p style="font-size:12px;color:var(--gray-text);margin-bottom:14px;line-height:1.7">各土台スキルについて、現状の評価・できていること・課題・改善方針を表示します。カテゴリをクリックして展開してください。</p>
+    <div id="supp-report"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="resultToTopBtn2">TOPへ戻る</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-secondary" id="restartBtn2">再診断する</button>
+      <button class="btn btn-pdf" id="pdfBtn2">PDFで保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== データ読み込み =====
+</script>
+<script>
+// ===== 統合土台スキル 20個 =====
+const INTEGRATED_SKILLS = [
+  { id:'S01', cat:'マインドセット基盤', name:'目的・成果志向',     def:'作業ではなく、目的・成果・相手の判断・期待成果を起点に行動する力',   conn:['プロフェッショナルマインド','ドキュメンテーション','コミュニケーションデザイン','イシュー思考','デリバリー力'] },
+  { id:'S02', cat:'マインドセット基盤', name:'当事者意識',        def:'自分の責任範囲として仕事を捉え、主体的に動く力',               conn:['プロフェッショナルマインド'] },
+  { id:'S03', cat:'マインドセット基盤', name:'学習・改善姿勢',     def:'指摘やレビューを吸収し、次回以降の行動に反映する力',            conn:['プロフェッショナルマインド'] },
+  { id:'S04', cat:'マインドセット基盤', name:'誠実性・信頼行動',    def:'不明点・遅れ・できていないことを正直に伝え、信頼を損なわない力',     conn:['プロフェッショナルマインド','コミュニケーションデザイン'] },
+  { id:'S05', cat:'認知・思考基盤',   name:'言葉理解・定義力',    def:'問題、課題、原因、リスク、施策、アクションなどを正しく使い分ける力',  conn:['ドキュメンテーション','イシュー思考'] },
+  { id:'S06', cat:'認知・思考基盤',   name:'論点設定力',        def:'何を解くべきかを問いとして定義する力',                      conn:['イシュー思考'] },
+  { id:'S07', cat:'認知・思考基盤',   name:'仮説思考力',        def:'限られた情報から仮説を置き、検証しながら進める力',              conn:['イシュー思考'] },
+  { id:'S08', cat:'認知・思考基盤',   name:'構造化・MECE分解力',  def:'情報や論点を抜け漏れ・重複なく整理する力',                   conn:['イシュー思考','ドキュメンテーション'] },
+  { id:'S09', cat:'認知・思考基盤',   name:'具体抽象化力',       def:'具体例と抽象概念を行き来し、本質や共通点を捉える力',            conn:['イシュー思考','コミュニケーションデザイン'] },
+  { id:'S10', cat:'情報整理基盤',    name:'情報整理・取捨選択力',  def:'事実・意見・解釈を分け、必要な情報を選ぶ力',                  conn:['ドキュメンテーション','コミュニケーションデザイン'] },
+  { id:'S11', cat:'情報整理基盤',    name:'情報差分把握力',      def:'相手が持っている情報と、自分が持っている情報の差分を捉え、認識齟齬を防ぐ力', conn:['コミュニケーションデザイン','ドキュメンテーション','デリバリー力'] },
+  { id:'S12', cat:'情報整理基盤',    name:'課題整理力',         def:'現状と理想のギャップを捉え、問題・原因・課題・打ち手を整理する力',          conn:['イシュー思考','ドキュメンテーション','コミュニケーションデザイン','デリバリー力'] },
+  { id:'S13', cat:'表現・伝達基盤',   name:'言語化・文章構成力',   def:'5W1H、主語述語、結論・根拠を明確にして文章化する力',           conn:['ドキュメンテーション','コミュニケーションデザイン'] },
+  { id:'S14', cat:'表現・伝達基盤',   name:'説明・質問設計力',    def:'相手に合わせて説明し、必要な情報を引き出す力',                 conn:['コミュニケーションデザイン'] },
+  { id:'S15', cat:'表現・伝達基盤',   name:'ビジュアル設計力',    def:'色、余白、配置、強弱、図解を使って判断しやすくする力',           conn:['ドキュメンテーション'] },
+  { id:'S16', cat:'実行・推進基盤',   name:'レスポンス・報連相力',  def:'早く一次反応し、誰に何をどの粒度で共有すべきか判断する力',        conn:['コミュニケーションデザイン','プロフェッショナルマインド'] },
+  { id:'S17', cat:'実行・推進基盤',   name:'前提確認・期待値調整力', def:'期限、スコープ、完了条件、品質水準をすり合わせる力',             conn:['デリバリー力','コミュニケーションデザイン'] },
+  { id:'S18', cat:'実行・推進基盤',   name:'タスク・進捗管理力',   def:'作業を分解し、期限・状態・ボール・残タスクを管理する力',          conn:['デリバリー力'] },
+  { id:'S19', cat:'実行・推進基盤',   name:'安定稼働・リカバリー力', def:'日による品質差を抑え、遅延・手戻り時に修正して前に進める力',       conn:['デリバリー力','プロフェッショナルマインド'] },
+  { id:'S20', cat:'信頼形成基盤',    name:'品質意識',          def:'誤り、抜け漏れ、見え方、期待値にこだわる力',                  conn:['ドキュメンテーション','デリバリー力','プロフェッショナルマインド'] },
+  { id:'S21', cat:'信頼形成基盤',    name:'先回り・リスク感度',    def:'懸念、炎上要素、次アクションを先に考える力',                  conn:['プロフェッショナルマインド','デリバリー力'] },
+];
+
+// ===== 5コア領域 =====
+const CORE_AREAS = [
+  { key:'A', label:'プロフェッショナルマインド', short:'PM' },
+  { key:'B', label:'ドキュメンテーション',     short:'DOC' },
+  { key:'C', label:'コミュニケーションデザイン', short:'COM' },
+  { key:'D', label:'イシュー思考',           short:'ISSUE' },
+  { key:'E', label:'デリバリー力',           short:'DEL' },
+];
+
+// ===== 40問定義 =====
+// skillId: 統合土台スキルID(S01〜S20), 各2問
+// areas: 関連する5領域キー
+// criteria: {1,2,3,4,5} 個別採点基準
+// lowComment: 低評価時の現状コメント
+// improvement: 改善方針
+const QUESTIONS = [
+  // S01 目的・成果志向 × 2問
+  {
+    id:'Q01', skillId:'S01',
+    areas:['D','E'],
+    text:'業務の依頼を受けた際、「なぜこの作業が必要か」「誰の何の判断に使われるか」を確認または自分で定義できる',
+    format:'行動評価',
+    criteria:{
+      1:'目的や背景を確認することなく、指示された作業だけを進めることが多い',
+      2:'目的は意識するが、確認せずに自分の解釈で進めてしまうことがある',
+      3:'通常業務では、目的・背景を確認したうえで作業を進められる',
+      4:'目的から逆算して、依頼の範囲を超えた必要事項まで先回りできる',
+      5:'目的定義の型を持ち、チームや後輩にも展開できる',
+    },
+    lowComment:'目的や成果を起点に動く習慣がまだ定着していない可能性があります。',
+    improvement:'着手前に「この仕事は誰の何の判断に使われるか」を一文で書く習慣をつける。',
+  },
+  {
+    id:'Q02', skillId:'S01',
+    areas:['D','B'],
+    text:'成果物を作る際、読み手・使い手が何を判断するために使うかを意識して構成・内容を設計できる',
+    format:'行動評価',
+    criteria:{
+      1:'読み手の判断ニーズを意識せず、自分が整理しやすい形で資料をまとめることが多い',
+      2:'読み手を意識しようとするが、自分目線で構成してしまうことがある',
+      3:'通常業務では、読み手の判断事項を踏まえた構成で成果物を作れる',
+      4:'読み手のレベル・関心・判断軸に合わせて構成を使い分けられる',
+      5:'読み手設計の観点をチームに型として共有・展開できる',
+    },
+    lowComment:'成果物の目的や読み手への意識がまだ薄い可能性があります。',
+    improvement:'資料を作る前に「読み手は誰か」「何を判断するために読むか」を明記する。',
+  },
+
+  // S02 当事者意識 × 2問
+  {
+    id:'Q03', skillId:'S02',
+    areas:['A'],
+    text:'担当業務において、指示を待つのではなく、自分から問題を発見し、必要な行動を取れる',
+    format:'行動評価',
+    criteria:{
+      1:'指示されたことだけをこなし、指示がない状況では動けないことが多い',
+      2:'気になることはあっても、自分から動くのをためらうことが多い',
+      3:'通常業務では、必要と判断した場合に自分から動ける',
+      4:'担当範囲を超えて問題に気づき、周囲を巻き込んで対処できる',
+      5:'当事者意識を組織全体に波及させる行動が取れる',
+    },
+    lowComment:'指示待ちになりやすく、自走した行動がまだ少ない可能性があります。',
+    improvement:'「自分ならどう動くか」を先に考えてから上長に確認する習慣をつける。',
+  },
+  {
+    id:'Q04', skillId:'S02',
+    areas:['A','E'],
+    text:'担当タスクや案件において、品質・期限・成果に対して自分が責任を持つ意識を持って動ける',
+    format:'行動評価',
+    criteria:{
+      1:'受け身で責任感がない',
+      2:'タスクをこなすことに集中し、品質や成果への責任意識が薄いことが多い',
+      3:'通常業務では、品質・期限・成果に対して責任を持って動ける',
+      4:'チームの成果全体に責任を感じ、他メンバーの成果にも関与できる',
+      5:'責任範囲を明確にし、チームの役割分担と責任の型を設計できる',
+    },
+    lowComment:'成果への責任意識がまだ十分に定着していない可能性があります。',
+    improvement:'タスク着手前に「自分がオーナーとして何をすべきか」を明確にする。',
+  },
+
+  // S03 学習・改善姿勢 × 2問
+  {
+    id:'Q05', skillId:'S03',
+    areas:['A'],
+    text:'指摘やレビュー内容を理解し、同じ指摘を繰り返さないように改善できる',
+    format:'行動評価',
+    criteria:{
+      1:'指摘内容を十分に理解できず、同じ指摘を繰り返すことが多い',
+      2:'指摘された箇所は直せるが、同じ観点を別の場面に応用できない',
+      3:'通常業務では、指摘内容を理解し、次回以降に反映できる',
+      4:'指摘の背景・意図まで理解し、自分なりに改善策を考えて行動できる',
+      5:'レビュー内容を型化し、他者の改善にも活用できる',
+    },
+    lowComment:'指摘を次の行動に活かす習慣がまだ定着していない可能性があります。',
+    improvement:'レビューを受けたら「次回どう変えるか」を一行メモに残す習慣をつける。',
+  },
+  {
+    id:'Q06', skillId:'S03',
+    areas:['A'],
+    text:'ミスや手戻りが起きたとき、原因を振り返り、再発しない仕組みや行動習慣を自分なりに作れる',
+    format:'シーン評価',
+    criteria:{
+      1:'ミスが起きても振り返りをほとんど行わず、同じパターンを繰り返しやすい',
+      2:'振り返りはするが、原因の特定や改善策が曖昧なことが多い',
+      3:'通常業務では、ミスの原因を振り返り、再発防止策を考えられる',
+      4:'根本原因まで掘り下げ、仕組みや習慣として改善策を実装できる',
+      5:'振り返りの型を作り、チームの改善サイクルにも展開できる',
+    },
+    lowComment:'失敗から学ぶ振り返りの習慣がまだ十分でない可能性があります。',
+    improvement:'週1回5分、「今週の失敗と次回の対策」をメモする習慣をつける。',
+  },
+
+  // S04 誠実性・信頼行動 × 2問
+  {
+    id:'Q07', skillId:'S04',
+    areas:['A','C'],
+    text:'分からないこと、できていないこと、遅延しそうなことを、正直かつ早めに上長や関係者に伝えられる',
+    format:'行動評価',
+    criteria:{
+      1:'問題や遅延を報告せず、状況が悪化してから伝えることが多い',
+      2:'報告はするが、タイミングが遅かったり、曖昧な伝え方になることが多い',
+      3:'通常業務では、問題・遅延を早めに正直に伝えられる',
+      4:'問題が起きる前に兆候を察知し、先手で共有できる',
+      5:'誠実な報告の型とタイミングをチームに定着させられる',
+    },
+    lowComment:'問題を早めに報告する習慣がまだ十分でない可能性があります。',
+    improvement:'「遅れそう」と感じた時点ですぐ報告する。完了報告より中間報告を優先する。',
+  },
+  {
+    id:'Q08', skillId:'S04',
+    areas:['A','C'],
+    text:'上長や顧客から曖昧な依頼を受けたとき、自己判断で進めず、目的・期限・期待成果を確認したうえで動ける',
+    format:'シーン評価',
+    criteria:{
+      1:'曖昧な依頼をそのまま進め、後から「そうじゃない」と言われることが多い',
+      2:'確認しようとするが、何を確認すればよいか分からず、中途半端になることがある',
+      3:'通常業務では、依頼の目的・期限・完了条件を確認したうえで動ける',
+      4:'確認すべき論点を自分で整理し、1回の質問で必要な情報をすべて引き出せる',
+      5:'確認事項の型を持ち、後輩や新メンバーにも教えられる',
+    },
+    lowComment:'依頼内容を正確に受け取る習慣がまだ定着していない可能性があります。',
+    improvement:'依頼を受けたら5W1Hをメモしてから動く。不明点はその場で確認する。',
+  },
+
+  // S05 言葉理解・定義力 × 2問
+  {
+    id:'Q09', skillId:'S05',
+    areas:['D','B'],
+    text:'「問題」「課題」「原因」「リスク」「施策」「アクション」などの言葉を正しく使い分けられる',
+    format:'行動評価',
+    criteria:{
+      1:'重要な言葉の意味を混同し、議論や資料の前提がずれることが多い',
+      2:'言葉の違いは一部理解しているが、実務上の使い分けに迷うことが多い',
+      3:'通常業務では、主要な言葉を正しく使い分けられる',
+      4:'曖昧な言葉を定義し、関係者間の認識を揃えられる',
+      5:'言葉の定義・使い分けをチーム内の共通ルールとして整理・展開できる',
+    },
+    lowComment:'言葉の使い分けに課題が表れている可能性があります。',
+    improvement:'議論や資料で「問題」「課題」「原因」を使う前に定義を確認する習慣をつける。',
+  },
+  {
+    id:'Q10', skillId:'S05',
+    areas:['D','B'],
+    text:'議論や報告の場で、使われている言葉の定義が曖昧な場合に、その場で確認・整理できる',
+    format:'シーン評価',
+    criteria:{
+      1:'言葉の定義が曖昧なまま議論が進んでいても、そのまま流してしまうことが多い',
+      2:'曖昧さに気づくが、指摘するタイミングや方法が分からないことがある',
+      3:'通常業務では、曖昧な言葉に気づいた際に確認・整理できる',
+      4:'言葉のズレが議論全体に与える影響まで見越して整理できる',
+      5:'定義の曖昧さを先に防ぐ仕組みや確認プロセスを設計できる',
+    },
+    lowComment:'言葉の定義を揃える機会を見逃している可能性があります。',
+    improvement:'MTGや資料レビュー前に、キーワードの定義を事前に確認・共有する。',
+  },
+
+  // S06 論点設定力 × 2問
+  {
+    id:'Q11', skillId:'S06',
+    areas:['D'],
+    text:'依頼や問題を受けたとき、「本当に解くべき問いは何か」を言語化できる',
+    format:'行動評価',
+    criteria:{
+      1:'依頼をそのまま受け取り、問いを再定義することなく作業に入ることが多い',
+      2:'問いを意識するが、表面的な問いで止まってしまうことが多い',
+      3:'通常業務では、依頼の本質的な問いを言語化して確認できる',
+      4:'問いを複数の角度から定義し、最も重要な問いを選択できる',
+      5:'問いの設定プロセスを型化し、後輩や顧客との議論に活用できる',
+    },
+    lowComment:'問いを設定する前に作業に入ってしまっている可能性があります。',
+    improvement:'着手前に「本当の問いは何か」を一文で書いてから作業を始める。',
+  },
+  {
+    id:'Q12', skillId:'S06',
+    areas:['D','C'],
+    text:'会議や打ち合わせで「この場で決めるべきこと」「確認すべきこと」を明確にして臨める',
+    format:'行動評価',
+    criteria:{
+      1:'会議の論点が不明確なまま臨み、何も決まらないことが多い',
+      2:'論点を意識するが、整理が甘く、議論が発散することがある',
+      3:'通常業務では、会議の論点と決定事項を事前に整理できる',
+      4:'論点の優先順位を設定し、議論を効率的にリードできる',
+      5:'会議設計の型を持ち、チームの会議品質全体を底上げできる',
+    },
+    lowComment:'会議の論点設定が甘く、議論が発散しやすい可能性があります。',
+    improvement:'会議前に「今日のゴール」「決定事項」「確認事項」の3点を整理してから臨む。',
+  },
+
+  // S07 仮説思考力 × 2問
+  {
+    id:'Q13', skillId:'S07',
+    areas:['D'],
+    text:'情報が不足している状況でも、現時点での仮説を立て、それをもとに動ける',
+    format:'行動評価',
+    criteria:{
+      1:'情報が揃わないと動けず、確認や調査に時間がかかりすぎることが多い',
+      2:'仮説は立てようとするが、根拠が弱く、確信が持てずに行動できないことがある',
+      3:'通常業務では、限られた情報から仮説を立てて行動できる',
+      4:'複数の仮説を立て、検証優先度を設定したうえで動ける',
+      5:'仮説思考のプロセスを型化し、後輩やチームに教えられる',
+    },
+    lowComment:'情報が揃うまで動けず、仮説を立てて進む習慣がまだ薄い可能性があります。',
+    improvement:'「今分かっていることから考えると〇〇のはず」と仮説を言語化してから動く。',
+  },
+  {
+    id:'Q14', skillId:'S07',
+    areas:['D'],
+    text:'分析や調査の結果を踏まえ、当初の仮説を修正・更新できる',
+    format:'行動評価',
+    criteria:{
+      1:'最初に立てた仮説にこだわり、反証データが出ても方向修正できないことがある',
+      2:'仮説の修正は意識するが、修正のタイミングや判断が遅れることがある',
+      3:'通常業務では、新しい情報をもとに仮説を修正・更新できる',
+      4:'仮説の修正ポイントを明確にし、変更の根拠をチームに説明できる',
+      5:'仮説の更新プロセスを設計し、チームの分析精度を高められる',
+    },
+    lowComment:'仮説の修正が遅れ、方向性がずれたまま進んでしまう可能性があります。',
+    improvement:'定期的に「仮説はまだ正しいか」を確認するチェックポイントを設ける。',
+  },
+
+  // S08 構造化・MECE分解力 × 2問
+  {
+    id:'Q15', skillId:'S08',
+    areas:['D','B'],
+    text:'複雑な情報や問題を、意味のある単位・順番・階層で整理できる',
+    format:'行動評価',
+    criteria:{
+      1:'情報を羅列するだけで、構造化して整理することが難しい',
+      2:'構造化を意識するが、抜け漏れや重複が残ることが多い',
+      3:'通常業務では、情報を意味のある単位・階層で整理できる',
+      4:'複数の構造化パターンを使い分け、最適な整理方法を選べる',
+      5:'構造化の型を作り、チームの資料・分析品質に展開できる',
+    },
+    lowComment:'情報を構造化して整理する力にまだ課題が表れている可能性があります。',
+    improvement:'情報を整理する前に「何でグループ分けするか」を決めてから整理する。',
+  },
+  {
+    id:'Q16', skillId:'S08',
+    areas:['D','B'],
+    text:'論点や課題を分解する際、抜け漏れ・重複がないよう意識して整理できる',
+    format:'行動評価',
+    criteria:{
+      1:'分解が不十分で、重要な観点が抜けていることが多い',
+      2:'分解は意識するが、抜け漏れや重複に気づかないことがある',
+      3:'通常業務では、主要な観点を抜け漏れなく整理できる',
+      4:'複数のMECE構造（マトリクス・ツリー・プロセスなど）を使い分けられる',
+      5:'MECE分解の型をチームに教え、成果物品質を底上げできる',
+    },
+    lowComment:'MECEに分解する習慣がまだ定着していない可能性があります。',
+    improvement:'分解後に「他にないか」「重複していないか」の2点を必ず確認する。',
+  },
+
+  // S09 具体抽象化力 × 2問
+  {
+    id:'Q17', skillId:'S09',
+    areas:['D','C'],
+    text:'個別の事例や事実から、共通するパターンや本質を抽出できる',
+    format:'行動評価',
+    criteria:{
+      1:'個別事例の処理に集中し、共通点や本質を捉えることが難しい',
+      2:'共通点を意識するが、抽象化が浅く表面的な共通項にとどまることが多い',
+      3:'通常業務では、複数の事例から共通するパターンや本質を見出せる',
+      4:'本質を見出したうえで、新しい状況への応用まで提示できる',
+      5:'抽象化した原則をチームの知識資産として整理・展開できる',
+    },
+    lowComment:'個別事例を越えた本質把握にまだ課題が表れている可能性があります。',
+    improvement:'「これは要するに何を意味するか」を一文で言語化する習慣をつける。',
+  },
+  {
+    id:'Q18', skillId:'S09',
+    areas:['D','C'],
+    text:'抽象的な概念や方針を、具体的な行動・事例に落とし込んで説明できる',
+    format:'行動評価',
+    criteria:{
+      1:'抽象的な話を具体例に落とすことが難しく、相手に伝わらないことが多い',
+      2:'具体例を出そうとするが、的外れな例になることがある',
+      3:'通常業務では、抽象的な概念を具体例を使って説明できる',
+      4:'相手のレベルや状況に合わせた具体例を複数用意できる',
+      5:'抽象と具体を行き来する説明パターンを型化し、チームに展開できる',
+    },
+    lowComment:'抽象的な話を具体化して伝える力にまだ課題が表れている可能性があります。',
+    improvement:'説明するときは必ず「例えば〇〇の場合」という具体例をセットにする。',
+  },
+
+  // S10 情報整理・取捨選択力 × 2問
+  {
+    id:'Q19', skillId:'S10',
+    areas:['B','C'],
+    text:'収集した情報を「事実」「推測」「意見」に分けて整理できる',
+    format:'行動評価',
+    criteria:{
+      1:'事実・推測・意見が混在したまま整理し、資料や報告の根拠が不明確なことが多い',
+      2:'分けようとするが、区別が曖昧になることがある',
+      3:'通常業務では、情報を事実・推測・意見に分けて整理できる',
+      4:'情報の性質（一次情報・二次情報・定性・定量）まで区別して整理できる',
+      5:'情報整理の型をチームに定着させ、成果物の信頼性を高められる',
+    },
+    lowComment:'事実と意見が混在した整理になっている可能性があります。',
+    improvement:'情報をまとめるとき「これは事実か推測か意見か」を先に分類する。',
+  },
+  {
+    id:'Q20', skillId:'S10',
+    areas:['B','C'],
+    text:'資料や報告の内容を、相手に必要な情報に絞って整理できる',
+    format:'行動評価',
+    criteria:{
+      1:'集めた情報をすべて盛り込もうとし、相手に必要な情報が埋もれることが多い',
+      2:'情報を絞ろうとするが、何を削ってよいか判断に迷うことがある',
+      3:'通常業務では、相手の判断に必要な情報に絞って整理できる',
+      4:'相手の優先事項・判断軸に基づいて情報の取捨選択ができる',
+      5:'情報の取捨選択基準を型化し、チームの成果物品質を均一化できる',
+    },
+    lowComment:'情報量が多すぎて、伝えたいことが伝わりにくくなっている可能性があります。',
+    improvement:'「この情報がないと相手が判断できないか」を問いながら情報を絞る。',
+  },
+
+  // S11 情報差分把握力 × 2問
+  {
+    id:'Q21', skillId:'S11',
+    areas:['C','B','E'],
+    text:'相手がどこまで知っていて、自分がどこまで知っているかの差分を意識して、説明・報告・相談の内容を調整できる',
+    format:'行動評価',
+    criteria:{
+      1:'相手が何を知っていて何を知らないかを意識せず、自分の前提で説明・報告してしまうことが多い',
+      2:'相手の理解度を意識しようとはするが、情報差を正確に捉えられず、説明が過不足になることがある',
+      3:'通常業務では、相手の理解状況を踏まえて説明・報告の内容を調整できる',
+      4:'相手と自分の情報差を先回りして整理し、認識齟齬が起きないように説明・報告できる',
+      5:'情報差分を把握する観点を型化し、チームの報連相・資料作成・説明品質に展開できる',
+    },
+    lowComment:'相手が持っている情報と自分が持っている情報の差分を捉えきれず、説明や報告の粒度がずれている可能性があります。',
+    improvement:'説明・報告の前に「相手は何を知っているか」「自分だけが知っている情報は何か」「相手が判断するために不足している情報は何か」を整理する。',
+  },
+  {
+    id:'Q22', skillId:'S11',
+    areas:['C','E','A'],
+    text:'会議や相談の場で、相手との認識ズレや前提情報の違いに気づき、その場で確認・補足できる',
+    format:'シーン評価',
+    criteria:{
+      1:'相手との前提情報の違いや認識ズレに気づけず、後から手戻りや誤解が発生することが多い',
+      2:'認識ズレに気づくことはあるが、その場で確認・補足する動きが弱い',
+      3:'通常業務では、相手との前提情報の違いに気づき、必要に応じて確認・補足できる',
+      4:'認識ズレが起きそうなポイントを先回りして確認し、議論や作業の手戻りを防げる',
+      5:'認識合わせの型を作り、会議・報告・相談の品質をチーム全体に展開できる',
+    },
+    lowComment:'相手との認識ズレや前提情報の違いに気づくタイミングが遅く、後から手戻りや誤解が発生しやすい可能性があります。',
+    improvement:'会議や相談の中で「ここまでの前提は合っていますか」「私の理解では〇〇ですが認識合っていますか」と確認する習慣をつける。',
+  },
+  {id:'Q23', skillId:'S13',
+    areas:['B','C'],
+    text:'報告・連絡・メールなどで、結論→理由→詳細の順で簡潔に書ける',
+    format:'行動評価',
+    criteria:{
+      1:'経緯から書き始め、結論がどこにあるか分からない文章になることが多い',
+      2:'結論を先に書こうとするが、構成が崩れることがある',
+      3:'通常業務では、結論→理由→詳細の順で文章を構成できる',
+      4:'相手の理解レベルや状況に合わせて文章構成を使い分けられる',
+      5:'文章構成の型をチームに展開し、報告・資料の品質を底上げできる',
+    },
+    lowComment:'文章の構成力に課題が表れている可能性があります。',
+    improvement:'文章を書く前に「結論→理由→補足」の3行メモを先に書いてから本文を書く。',
+  },
+  {
+    id:'Q24', skillId:'S13',
+    areas:['B','C'],
+    text:'資料や文章で、5W1H（誰が・何を・いつまでに・なぜ・どのように）を明確にできる',
+    format:'行動評価',
+    criteria:{
+      1:'主語・期限・目的が不明確な資料や文章になることが多い',
+      2:'5W1Hを意識するが、抜けが残ることが多い',
+      3:'通常業務では、5W1Hを明確にした文章・資料を作れる',
+      4:'相手に応じて5W1Hの粒度と優先順位を調整できる',
+      5:'5W1Hの確認を依頼受領時・資料作成時の型として定着させられる',
+    },
+    lowComment:'伝えるべき5W1Hが不明確な資料・文章になりやすい可能性があります。',
+    improvement:'資料やメールを書く前に5W1Hを箇条書きで整理してから書き始める。',
+  },
+
+  // S13 説明・質問設計力 × 2問
+  {
+    id:'Q25', skillId:'S14',
+    areas:['C'],
+    text:'相手の理解レベルや関心に合わせて、説明の内容・順番・粒度を調整できる',
+    format:'行動評価',
+    criteria:{
+      1:'自分が分かる形で説明し、相手に伝わっているか確認しないことが多い',
+      2:'相手を意識しようとするが、自分目線の説明になってしまうことがある',
+      3:'通常業務では、相手のレベルや関心に合わせた説明ができる',
+      4:'相手の反応を見ながらリアルタイムに説明を修正できる',
+      5:'説明設計の型を持ち、後輩やチームに教えられる',
+    },
+    lowComment:'相手に合わせた説明の設計がまだ十分でない可能性があります。',
+    improvement:'説明前に「相手が知りたいのは何か」「何を判断してほしいか」を先に整理する。',
+  },
+  {
+    id:'Q26', skillId:'S14',
+    areas:['C'],
+    text:'相手から必要な情報を引き出すために、確認すべき論点を整理してから質問できる',
+    format:'行動評価',
+    criteria:{
+      1:'思いついた質問を順不同に聞き、必要な情報が揃わないことが多い',
+      2:'質問を準備するが、論点整理が甘く、確認漏れが発生することがある',
+      3:'通常業務では、確認すべき論点を整理してから質問できる',
+      4:'1回の質問で必要な情報をすべて引き出せる質問設計ができる',
+      5:'質問設計の型を持ち、後輩やチームが実践できるよう教えられる',
+    },
+    lowComment:'質問の設計が不十分で、確認漏れが起きやすい可能性があります。',
+    improvement:'質問する前に「何を確認したいか」「答えをどう使うか」をリストアップしてから聞く。',
+  },
+
+  // S14 ビジュアル設計力 × 2問
+  {
+    id:'Q27', skillId:'S15',
+    areas:['B'],
+    text:'資料のレイアウト・図解・強弱をつけて、読み手が一目で内容を把握しやすい形に整えられる',
+    format:'行動評価',
+    criteria:{
+      1:'テキスト中心で、視覚的な整理がほとんどできていない',
+      2:'図や表を使おうとするが、情報が整理されておらず読みにくいことがある',
+      3:'通常業務では、図解・強弱・レイアウトを使って見やすい資料を作れる',
+      4:'読み手の判断フローに合わせてビジュアルを設計できる',
+      5:'ビジュアル設計の型をチームに展開し、成果物の視認性を底上げできる',
+    },
+    lowComment:'資料の視覚的な整理にまだ課題が表れている可能性があります。',
+    improvement:'資料を作る前に「1枚で何を伝えたいか」を決めてから図解・レイアウトを設計する。',
+  },
+  {
+    id:'Q28', skillId:'S15',
+    areas:['B'],
+    text:'色・余白・フォントサイズなどを使って、情報の重要度・階層・流れを伝えられる',
+    format:'行動評価',
+    criteria:{
+      1:'色やフォントサイズが統一されておらず、どこが重要か分かりにくい資料になることが多い',
+      2:'デザイン要素を使おうとするが、一貫性がなくなることがある',
+      3:'通常業務では、色・余白・強弱を使って情報の優先度を伝えられる',
+      4:'デザイン要素を統一したルールで運用し、読み手の認知負荷を下げられる',
+      5:'資料デザインのガイドラインを作り、チームに展開できる',
+    },
+    lowComment:'視覚的な強弱・整理がまだ不十分な可能性があります。',
+    improvement:'資料内で「一番伝えたいこと」を1か所だけ強調する練習から始める。',
+  },
+
+  // S15 レスポンス・報連相力 × 2問
+  {
+    id:'Q29', skillId:'S16',
+    areas:['C','A'],
+    text:'依頼や連絡を受けた際、相手を待たせずに一次返信し、対応予定を伝えられる',
+    format:'行動評価',
+    criteria:{
+      1:'依頼や連絡への反応が遅く、相手が状況を把握できないことが多い',
+      2:'反応はするが、対応可否・着手予定・完了目安が不明確なことが多い',
+      3:'通常業務では、依頼を受けた際に一次返信し、対応予定を伝えられる',
+      4:'相手の不安を先回りし、状況変化や遅延可能性も早めに共有できる',
+      5:'チーム内のレスポンス・報連相基準を作り、他者にも展開できる',
+    },
+    lowComment:'一次返信・進捗共有の習慣がまだ定着していない可能性があります。',
+    improvement:'受信後30分以内に一次返信する習慣をつける。内容の回答がなくても受領報告をする。',
+  },
+  {
+    id:'Q30', skillId:'S16',
+    areas:['C','A'],
+    text:'誰に・何を・いつ・どの粒度で報告・連絡すべきか判断して動ける',
+    format:'行動評価',
+    criteria:{
+      1:'報連相のタイミングや相手の判断が難しく、後から「なぜ言わなかった」となることが多い',
+      2:'報連相しようとするが、粒度やタイミングがずれることがある',
+      3:'通常業務では、報連相の相手・タイミング・粒度を判断できる',
+      4:'相手ごとの報連相ニーズを理解し、最適な形で共有できる',
+      5:'チームの報連相ルールを設計し、情報流通の質を高められる',
+    },
+    lowComment:'報連相の設計・判断がまだ十分でない可能性があります。',
+    improvement:'週初めに「誰に何を報告するか」を書き出して設計する習慣をつける。',
+  },
+
+  // S16 前提確認・期待値調整力 × 2問
+  {
+    id:'Q31', skillId:'S17',
+    areas:['E','C'],
+    text:'作業を始める前に、期限・スコープ・完了条件・品質水準を確認できる',
+    format:'行動評価',
+    criteria:{
+      1:'前提確認なしに着手し、完成後に「そうじゃない」と言われることが多い',
+      2:'確認しようとするが、項目が漏れることが多い',
+      3:'通常業務では、期限・スコープ・完了条件を確認してから着手できる',
+      4:'暗黙の期待値まで確認し、認識齟齬が起きにくい着手ができる',
+      5:'前提確認の型を持ち、後輩やチームにも定着させられる',
+    },
+    lowComment:'前提確認が不十分で、手戻りが発生しやすい可能性があります。',
+    improvement:'着手前に「期限・スコープ・完了条件」の3点を書き出して確認する。',
+  },
+  {
+    id:'Q32', skillId:'S17',
+    areas:['E','C'],
+    text:'作業の途中や完了時に、相手の期待とのズレを事前に調整できる',
+    format:'シーン評価',
+    criteria:{
+      1:'ズレに気づかないまま完成させ、手戻りになることが多い',
+      2:'調整しようとするが、タイミングが遅れることがある',
+      3:'通常業務では、中間確認で期待値のズレを調整できる',
+      4:'先手で期待値を確認し、修正コストを最小化できる',
+      5:'期待値調整のプロセスを設計し、チームの手戻り率を下げられる',
+    },
+    lowComment:'期待値調整のタイミングが遅れ、手戻りが発生しやすい可能性があります。',
+    improvement:'中間段階で「今の方向性でよいか」を確認するポイントを事前に決めておく。',
+  },
+
+  // S17 タスク・進捗管理力 × 2問
+  {
+    id:'Q33', skillId:'S18',
+    areas:['E'],
+    text:'依頼されたことを、具体的な作業単位（タスク）に分解して着手できる',
+    format:'行動評価',
+    criteria:{
+      1:'タスク分解が不十分で、何から手をつければよいか分からなくなることが多い',
+      2:'分解しようとするが、粒度が大きすぎて作業が止まることがある',
+      3:'通常業務では、依頼内容を具体的なタスクに分解してから着手できる',
+      4:'タスクの依存関係と優先順位を整理し、最適な順序で進められる',
+      5:'タスク分解のフレームを持ち、チームのプロジェクト管理に展開できる',
+    },
+    lowComment:'タスク分解が不十分で、着手が遅れたり手戻りが発生しやすい可能性があります。',
+    improvement:'着手前に「タスクリスト・期限・担当者」をセットで書き出す習慣をつける。',
+  },
+  {
+    id:'Q34', skillId:'S18',
+    areas:['E'],
+    text:'期限・進捗・残タスク・ボール（誰の番か）を常に把握して動ける',
+    format:'行動評価',
+    criteria:{
+      1:'期限や進捗の把握が曖昧で、タスクが滞留することが多い',
+      2:'管理しようとするが、更新が追いつかず状況が不明確になることがある',
+      3:'通常業務では、期限・進捗・残タスク・ボールを把握して動ける',
+      4:'チーム全体の進捗を把握し、ボトルネックを事前に解消できる',
+      5:'進捗管理の仕組みを設計し、チームの管理コストを下げられる',
+    },
+    lowComment:'進捗・ボール管理が不十分で、タスクが滞留しやすい可能性があります。',
+    improvement:'毎日始業時に「今日やること・誰のボールか・期限」の3点を確認する習慣をつける。',
+  },
+
+  // S18 安定稼働・リカバリー力 × 2問
+  {
+    id:'Q35', skillId:'S19',
+    areas:['E','A'],
+    text:'体調・業務量・周囲の状況に関わらず、一定の品質とレスポンスを維持できる',
+    format:'行動評価',
+    criteria:{
+      1:'忙しい日や調子が悪い日に品質やレスポンスが著しく落ちることが多い',
+      2:'安定を意識するが、波が出てしまうことがある',
+      3:'通常業務では、一定の品質とレスポンスを安定して維持できる',
+      4:'高負荷状況でも品質を落とさずに対処できる仕組みを持っている',
+      5:'安定稼働の仕組みをチームに共有し、組織全体の品質安定に貢献できる',
+    },
+    lowComment:'業務の品質やレスポンスに日による波が出やすい可能性があります。',
+    improvement:'繁忙期でも最低限維持すべき「品質基準とレスポンス速度」をあらかじめ決めておく。',
+  },
+  {
+    id:'Q36', skillId:'S19',
+    areas:['E'],
+    text:'遅延・ミス・トラブルが発生した際、素早く状況を報告し、修正して前に進められる',
+    format:'シーン評価',
+    criteria:{
+      1:'問題が起きると立ち止まってしまい、報告も対処も遅れることが多い',
+      2:'報告はするが、対処策が出てこず、上位者への依存が高いことがある',
+      3:'通常業務では、問題発生時に報告と対処策を合わせて提示できる',
+      4:'問題の影響範囲を整理し、優先対処と予防策を同時に提示できる',
+      5:'リカバリーのパターンを型化し、チームの対応力を高められる',
+    },
+    lowComment:'問題発生時のリカバリー力にまだ課題が表れている可能性があります。',
+    improvement:'問題が起きたら「報告→影響範囲確認→対処案提示」の順で動く型を覚える。',
+  },
+
+  // S19 品質意識 × 2問
+  {
+    id:'Q37', skillId:'S20',
+    areas:['B','E','A'],
+    text:'成果物を提出する前に、誤字脱字・数値・論理的整合性・相手の期待値を自分でチェックできる',
+    format:'行動評価',
+    criteria:{
+      1:'セルフチェックをほとんど行わず、ミスが多い状態で提出することが多い',
+      2:'チェックはするが、観点が浅く重大なミスを見逃すことがある',
+      3:'通常業務では、誤字脱字・数値・論理整合を確認してから提出できる',
+      4:'相手の期待値と照らし合わせた高精度のセルフレビューができる',
+      5:'チェックの観点を型化し、チーム全体の品質基準を設定できる',
+    },
+    lowComment:'提出前の品質確認がまだ不十分な可能性があります。',
+    improvement:'提出前チェックリスト（誤字・数値・論理・完了条件の4点）を作って毎回使う。',
+  },
+  {
+    id:'Q38', skillId:'S20',
+    areas:['B','E','A'],
+    text:'相手の期待水準を意識し、期待を下回らない品質で成果物を仕上げられる',
+    format:'行動評価',
+    criteria:{
+      1:'期待水準を意識せず、最低限の仕上がりで提出することが多い',
+      2:'品質は意識するが、何が期待水準かを把握できていないことがある',
+      3:'通常業務では、相手の期待水準を意識した品質で仕上げられる',
+      4:'期待水準を事前に確認し、それを超える品質を安定して提供できる',
+      5:'品質基準の設定とチェックの仕組みをチームに展開できる',
+    },
+    lowComment:'期待品質に対する意識がまだ十分でない可能性があります。',
+    improvement:'着手前に「相手が満足する状態はどんな状態か」を言葉で書き出す習慣をつける。',
+  },
+
+  // S20 先回り・リスク感度 × 2問
+  {
+    id:'Q39', skillId:'S21',
+    areas:['A','E'],
+    text:'業務の進行中に、起きうるリスクや懸念点を先に洗い出し、事前に対処できる',
+    format:'行動評価',
+    criteria:{
+      1:'リスクや懸念点を事前に考えず、問題が起きてから対処することが多い',
+      2:'リスクを意識するが、特定が浅く、主要なリスクを見落とすことがある',
+      3:'通常業務では、主要なリスクを事前に洗い出して対処できる',
+      4:'影響度・発生確率でリスクを分類し、優先対処できる',
+      5:'リスク管理の型を持ち、チームのプロジェクト品質を高められる',
+    },
+    lowComment:'リスクの事前察知・対処がまだ定着していない可能性があります。',
+    improvement:'作業着手前に「何がうまくいかないか」を3つ書き出してから動く習慣をつける。',
+  },
+  {
+    id:'Q40', skillId:'S21',
+    areas:['A','E'],
+    text:'次のアクションや必要な確認事項を、指示される前に自分から考えて動ける',
+    format:'行動評価',
+    criteria:{
+      1:'次の行動を自分から考えることが少なく、指示を待つことが多い',
+      2:'先を読もうとするが、見通しが甘く想定外のことが多い',
+      3:'通常業務では、次のアクションを自分から考えて動ける',
+      4:'2〜3手先を読み、チームの次のアクションを先回りして準備できる',
+      5:'先回りの観点を型化し、チームの業務効率を高められる',
+    },
+    lowComment:'先を見越した行動がまだ少なく、指示待ちになりやすい可能性があります。',
+    improvement:'業務終了時に「次に何が必要か」を3つ書き出して翌日の準備をする習慣をつける。',
+  },
+
+  {
+    id:'Q41', skillId:'S12',
+    areas:['D','B','C'],
+    text:'現状と理想のギャップを整理し、何が問題で、何を解くべき課題なのかを切り分けられる',
+    format:'行動評価',
+    criteria:{
+      1:'現状・理想・問題・課題を区別できず、何を解くべきかが曖昧なまま進めてしまうことが多い',
+      2:'現状と理想の違いは捉えようとするが、問題・原因・課題の切り分けが曖昧になることがある',
+      3:'通常業務では、現状と理想のギャップを整理し、問題と課題を切り分けられる',
+      4:'ギャップの原因や影響範囲まで整理し、優先的に解くべき課題を設定できる',
+      5:'課題整理の型を作り、関係者との議論やチームの問題解決プロセスに展開できる',
+    },
+    lowComment:'現状と理想のギャップ、問題、原因、課題の切り分けが曖昧になっている可能性があります。',
+    improvement:'問題を整理するときは「現状」「理想」「ギャップ」「原因」「課題」「打ち手」を分けて書き出す。',
+  },
+  {
+    id:'Q42', skillId:'S12',
+    areas:['D','E','C'],
+    text:'複数の問題がある状況で、何を優先して解くべき課題かを整理し、関係者に説明できる',
+    format:'シーン評価',
+    criteria:{
+      1:'複数の問題が並んだとき、どれを優先して解くべきか判断できず、整理が止まることが多い',
+      2:'優先順位をつけようとするが、影響度・緊急度・目的との関係を十分に整理できないことがある',
+      3:'通常業務では、複数の問題を整理し、優先して解くべき課題を説明できる',
+      4:'目的・影響度・実行可能性を踏まえて課題の優先順位を設定し、関係者の合意を取れる',
+      5:'課題整理・優先順位付けの型を作り、チームや顧客との課題解決に展開できる',
+    },
+    lowComment:'複数の問題を整理し、何を優先して解くべきかを判断する力に課題が表れている可能性があります。',
+    improvement:'問題が複数ある場合は「影響度」「緊急度」「目的への近さ」「実行可能性」の4観点で優先順位をつける。',
+  },
+];
+
+// ===== 低スコア時に優先する基本動作系スキル =====
+const BASIC_SKILL_IDS = ['S01','S16','S17','S18','S13','S04','S19'];
+
+// ===== スキルIDから質問を検索 =====
+function getQuestionsBySkillId(skillId) {
+  return QUESTIONS.filter(q => q.skillId === skillId);
+}
+
+</script>
+<script>
+(function(){
+
+// ===== 5領域定義 =====
+const CORE_AREAS_MAP = {
+  A: 'プロフェッショナルマインド',
+  B: 'ドキュメンテーション',
+  C: 'コミュニケーションデザイン',
+  D: 'イシュー思考',
+  E: 'デリバリー力',
+};
+const AREA_SHORTS = { A:'PM', B:'DOC', C:'COM', D:'ISSUE', E:'DEL' };
+
+// ===== スキルカテゴリ =====
+const SUPP_CATS = {
+  'マインドセット基盤': ['S01','S02','S03','S04'],
+  '認知・思考基盤':   ['S05','S06','S07','S08','S09','S12'],
+  '情報整理基盤':    ['S10','S11'],
+  '表現・伝達基盤':   ['S13','S14','S15'],
+  '実行・推進基盤':   ['S16','S17','S18','S19'],
+  '信頼形成基盤':    ['S20','S21'],
+};
+
+let scores = {}; // { Q01: 3, Q02: 2, ... }
+let radarInst = null;
+let exportData = null;
+
+// ===== ページ切替 =====
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ===== 入力ページ構築 =====
+function buildQuestions(){
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  let prevCat = '';
+  QUESTIONS.forEach(q => {
+    const skill = INTEGRATED_SKILLS.find(s => s.id === q.skillId);
+    if(skill.cat !== prevCat){
+      const hdr = document.createElement('div');
+      hdr.className = 'section-hdr';
+      hdr.textContent = skill.cat;
+      container.appendChild(hdr);
+      prevCat = skill.cat;
+    }
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.id = 'block-' + q.id;
+
+    // 採点基準テーブル
+    let critHTML = '<table class="criteria-table">';
+    for(let i=1; i<=5; i++){
+      critHTML += `<tr><td>${i}</td><td>${q.criteria[i]}</td></tr>`;
+    }
+    critHTML += '</table>';
+
+    // スコアボタン
+    let btnHTML = `<div class="score-btns" id="btns-${q.id}">`;
+    for(let v=1; v<=5; v++){
+      btnHTML += `<button class="score-btn" data-id="${q.id}" data-val="${v}">${v}</button>`;
+    }
+    btnHTML += '</div>';
+
+    block.innerHTML = `
+      <div class="q-label">${q.id} ／ ${skill.name}</div>
+      <div class="q-text">${q.text}</div>
+      ${critHTML}
+      ${btnHTML}
+      <input class="memo-input" id="memo-${q.id}" placeholder="評価メモ（任意）" type="text">
+    `;
+    container.appendChild(block);
+  });
+
+  // ボタンイベント
+  container.querySelectorAll('.score-btns').forEach(group => {
+    group.querySelectorAll('.score-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        scores[id] = parseInt(btn.dataset.val);
+        group.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected','error-btn'));
+        btn.classList.add('selected');
+        document.getElementById('block-'+id).classList.remove('error-block');
+        updateProgress();
+      });
+    });
+  });
+}
+
+function updateProgress(){
+  const answered = Object.keys(scores).length;
+  const pct = (answered / QUESTIONS.length * 100).toFixed(0);
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ===== スコア計算 =====
+function calcAreaScores(){
+  const areaScores = { A:[], B:[], C:[], D:[], E:[] };
+  QUESTIONS.forEach(q => {
+    const s = scores[q.id] || 0;
+    q.areas.forEach(a => areaScores[a].push(s));
+  });
+  const result = {};
+  Object.keys(areaScores).forEach(k => {
+    const arr = areaScores[k];
+    result[k] = arr.length ? parseFloat((arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1)) : 0;
+  });
+  return result;
+}
+
+function calcSkillScores(){
+  const result = {};
+  INTEGRATED_SKILLS.forEach(s => {
+    const qs = QUESTIONS.filter(q => q.skillId === s.id);
+    const vals = qs.map(q => scores[q.id] || 0);
+    result[s.id] = vals.length ? parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)) : 0;
+  });
+  return result;
+}
+
+// ===== 弱点領域 =====
+function getWeakAreas(as){
+  const vals = Object.values(as);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+
+  // ① 絶対基準：3.0未満
+  const absWeak = Object.keys(as).filter(k => as[k] < 3.0);
+
+  // ② 相対基準：全体平均より0.7以上低い領域（全体水準が高くても相対的な弱点を検出）
+  const relWeak = Object.keys(as).filter(k => as[k] < avg - 0.7);
+
+  // 両方をマージ（重複排除）
+  const merged = [...new Set([...absWeak, ...relWeak])];
+
+  // どちらもなければ最低スコア領域を返す
+  if(merged.length === 0){
+    const mn = Math.min(...vals);
+    return Object.keys(as).filter(k => as[k] === mn);
+  }
+  return merged;
+}
+
+// ===== 相対的に低いスキルを検出（スキルレベルの偏差分析）=====
+function getRelativeWeakSkills(skillScores){
+  const vals = Object.values(skillScores);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const threshold = 0.8; // 平均より0.8以上低いと相対弱点とみなす
+  return Object.keys(skillScores).filter(sid => skillScores[sid] < avg - threshold);
+}
+
+// ===== 育成支援レベル =====
+// ===== スキルクラス判定 =====
+function getSkillClass(as, overall){
+  const vals = Object.values(as);
+  const minScore = Math.min(...vals);
+  const underThree = vals.filter(v => v < 3.0).length;
+  const overFour   = vals.filter(v => v >= 4.0).length;
+  if(overall >= 4.3 && vals.every(v => v >= 4.0))
+    return { level:5, label:'シニアマネージャークラス', color:'#1a5c28', desc:'全体設計・品質責任・育成・レビューを担える水準です。' };
+  if(overall >= 3.8 && minScore >= 3.5)
+    return { level:4, label:'マネージャークラス', color:'#1a7a3c', desc:'案件やチームをリードし、成果責任を持てる水準です。' };
+  if(overall >= 3.2 && underThree <= 1)
+    return { level:3, label:'シニアコンサルクラス', color:'#2d80b0', desc:'高難度タスクを自走し、部分的に周囲を支援できる水準です。' };
+  if(overall >= 2.5 && underThree <= 3)
+    return { level:2, label:'コンサルクラス', color:'#6a8aaa', desc:'通常業務を一定程度自走できる水準です。' };
+  return { level:1, label:'アソシエイトクラス', color:'#8a6a4a', desc:'基礎業務遂行を習得中で、支援・レビューが必要な段階です。' };
+}
+
+// ===== 育成支援レベル判定 =====
+function getSupportLevel(as, overall){
+  const vals = Object.values(as);
+  const underThree = vals.filter(v => v < 3.0).length;
+  if(overall < 2.0 || vals.every(v => v < 3.0) || underThree >= 3)
+    return { label:'重点支援', color:'#c0392b', desc:'複数領域に課題があり、上位者による継続的な支援と伴走が必要な状態です。' };
+  if(underThree >= 1 && underThree <= 2)
+    return { label:'通常支援', color:'#e07b2c', desc:'一部領域に課題があり、定期的なレビュー・助言が必要な状態です。' };
+  if(vals.every(v => v >= 4.0))
+    return { label:'リード支援', color:'#1a7a3c', desc:'他者支援・型化・レビュー側への移行を支援する段階です。' };
+  return { label:'自走支援', color:'#2d80b0', desc:'基本的には自走可能で、必要に応じた助言があれば十分な状態です。' };
+}
+
+// ===== 人材タイプ判定 =====
+// 強みの傾向から判定。弱点ラベルは使わない。
+function getPersonalityType(as, skillScores){
+  const sAvg = Object.values(skillScores).reduce((a,b)=>a+b,0) / Object.values(skillScores).length;
+  const aAvg = Object.values(as).reduce((a,b)=>a+b,0) / 5;
+  // 相対的に高いかどうかの判定ヘルパー
+  const isHiA = k => as[k] >= Math.max(3.5, aAvg + 0.4);
+  const isHiS = id => skillScores[id] >= Math.max(3.2, sAvg + 0.4);
+
+  // タイプ別スコアリング
+  const scores = {
+    '実行推進型':    (isHiA('E')?3:0)+(isHiS('S18')?2:0)+(isHiS('S16')?2:0)+(isHiS('S01')?1:0)+(as['E']>aAvg+0.3?1:0),
+    '構造整理型':    (isHiA('B')?3:0)+(isHiS('S08')?2:0)+(isHiS('S10')?2:0)+(isHiS('S11')?1:0)+(isHiS('S12')?1:0),
+    '対人調整型':    (isHiA('C')?3:0)+(isHiS('S14')?2:0)+(isHiS('S16')?2:0)+(isHiS('S11')?2:0)+(isHiS('S17')?1:0),
+    '品質管理型':    (isHiS('S20')?3:0)+(isHiS('S11')?2:0)+(isHiS('S03')?2:0)+(isHiA('B')?1:0),
+    '探索思考型':    (isHiA('D')?3:0)+(isHiS('S06')?2:0)+(isHiS('S07')?2:0)+(isHiS('S09')?2:0)+(isHiS('S12')?2:0),
+    '安定運用型':    (isHiA('E')?2:0)+(isHiS('S19')?3:0)+(isHiS('S20')?2:0)+(isHiS('S18')?1:0)+(isHiS('S11')?1:0),
+    '成長吸収型':    (isHiS('S03')?3:0)+(isHiS('S04')?2:0)+(as['A']>aAvg+0.3?1:0),
+    '巻き込み先導型': (isHiA('A')?3:0)+(isHiS('S02')?2:0)+(isHiS('S21')?2:0)+(isHiA('C')?1:0)+(isHiS('S12')?1:0),
+  };
+
+  // 最高スコアのタイプを選択（同点はオブジェクト順で先行）
+  let best = 'バランス型'; let bestSc = 0;
+  Object.entries(scores).forEach(([type, sc]) => { if(sc > bestSc){ bestSc = sc; best = type; }});
+  // スコアが低すぎる場合はバランス型
+  if(bestSc < 3) best = 'バランス型';
+
+  const TYPE_DEF = {
+    '実行推進型':    { feature:'手を動かして物事を前に進める力が強いタイプです。行動量・実行スピードが武器になります。', usecase:'期限が明確な作業、タスク推進、運用改善、進捗管理が必要な場面で力を発揮しやすいです。', caution:'目的や論点確認が浅いまま進めると、手戻りが発生しやすくなります。', dev:'実行力を活かしつつ、着手前に目的・論点・完了条件を確認する習慣をつけることで、成果の再現性が高まります。' },
+    '構造整理型':    { feature:'情報を整理し、構造化して考える傾向が強いタイプです。物事の骨格を見抜く力があります。', usecase:'資料作成、業務整理、論点整理、議事メモ、ナレッジ化が得意です。', caution:'実行スピードや周囲の巻き込みが遅れることがあります。', dev:'整理力を活かしながら、アウトプットのスピードと関係者への早期共有を意識させることで実力が発揮できます。' },
+    '対人調整型':    { feature:'関係者との会話・調整・合意形成を進める傾向が強いタイプです。人を動かす力があります。', usecase:'顧客折衝、会議運営、ヒアリング、関係者調整で力を発揮しやすいです。', caution:'成果物化や論点の深掘りが弱くなることがあります。', dev:'対人調整力を活かしつつ、議論結果を構造化して成果物に落とす訓練を行うと更に成長できます。' },
+    '品質管理型':    { feature:'正確性・品質・レビュー観点を重視する傾向が強いタイプです。ミスを減らす目線があります。', usecase:'成果物レビュー、品質管理、チェック業務、PMO、運用改善に向いています。', caution:'スピードや大胆な仮説構築が弱くなることがあります。', dev:'品質への強みを活かしつつ、初期仮説を置いて早く検証する経験を増やすと幅が広がります。' },
+    '探索思考型':    { feature:'仮説・論点・新しい打ち手を考える傾向が強いタイプです。問いを立てる力があります。', usecase:'課題設定、企画検討、調査分析、論点整理に力を発揮しやすいです。', caution:'実行管理や着地が甘くなることがあります。', dev:'思考力を活かしつつ、タスク分解・進捗管理・成果物化までやり切る訓練を行うと飛躍できます。' },
+    '安定運用型':    { feature:'期限・進捗・運用を安定させる傾向が強いタイプです。ブレない稼働ができます。', usecase:'定常運用、PMO、進捗管理、業務改善、運用定着に向いています。', caution:'新規課題や曖昧な論点設定では支援が必要な場合があります。', dev:'安定運用力を活かしつつ、曖昧な状況で問いを立てる経験を増やすと対応幅が広がります。' },
+    '成長吸収型':    { feature:'指摘やレビューを吸収し、改善につなげる傾向が強いタイプです。素直な成長力があります。', usecase:'育成初期、レビューを受けながら成長する業務、型の習得に向いています。', caution:'まだ自分の型が弱く、経験や環境に左右されやすいです。', dev:'良い型を反復させ、レビュー内容を次回行動に転用する練習を行うと急成長が見込めます。' },
+    '巻き込み先導型':{ feature:'周囲を巻き込み、場を前に進める傾向が強いタイプです。牽引力があります。', usecase:'会議推進、顧客調整、関係者巻き込み、プロジェクト推進に力を発揮しやすいです。', caution:'細部の品質や論理整合が抜けることがあります。', dev:'巻き込み力を活かしつつ、論理構成・品質管理・差分確認を補強すると信頼性が高まります。' },
+    'バランス型':    { feature:'複数の領域を安定してこなせる、バランスのとれたタイプです。状況に応じて幅広く対応できます。', usecase:'幅広い業務に対応でき、チームの状況に応じた柔軟な役割を担えます。', caution:'軸となる得意領域を1つ意識的に伸ばすと、強みとしてさらに際立たせやすくなります。', dev:'自分が最も成果を出しやすい場面を振り返り、得意パターンを自覚して伸ばすと、強みがより明確になります。' },
+  };
+
+  const def = TYPE_DEF[best] || TYPE_DEF['バランス型'];
+  return { type: best, ...def };
+}
+
+function isLow(as, overall){
+  return overall < 2.0 || Object.values(as).every(v => v < 3.0);
+}
+
+// ===== 人材傾向パターン分析 =====
+// スキルスコアの組み合わせから、行動傾向・育成上の注意点を読み取る
+function getTendencies(skillScores, as, overall){
+  const s = skillScores;
+  const avg = Object.values(s).reduce((a,b)=>a+b,0) / Object.values(s).length;
+  const tendencies = [];
+
+  // ─── パターン1: フィードバック耐性が低い・プライドが高い可能性 ───
+  // 学習・改善姿勢(S03)が全体平均より著しく低く、かつ他スキルは平均以上
+  const otherAvgExcludeS03 = Object.keys(s).filter(k=>k!=='S03').reduce((a,k)=>a+s[k],0) / (Object.keys(s).length-1);
+  if(s['S03'] < avg - 0.8 && otherAvgExcludeS03 >= avg){
+    tendencies.push({
+      label: 'フィードバック耐性が低い可能性',
+      icon: '⚠',
+      color: '#c0392b',
+      desc: '他のスキルと比較して「学習・改善姿勢」のスコアが低い点が目立ちます。能力は一定あるにもかかわらず指摘を活かしきれていない場合、プライドの高さやフィードバックへの抵抗感が背景にある可能性があります。',
+      advice: '評価者は、指摘を「能力への評価」ではなく「行動への提案」として伝える工夫を。良い部分を先に認めたうえで改善点を伝えると受け取りやすくなります。'
+    });
+  }
+
+  // ─── パターン2: 自己完結型・報告が少ない可能性 ───
+  // レスポンス・報連相(S15)と誠実性・信頼行動(S04)が低く、タスク管理(S17)は高い
+  if(s['S16'] < avg - 0.6 && s['S04'] < avg - 0.6 && s['S18'] >= avg){
+    tendencies.push({
+      label: '自己完結型・報告が少ない可能性',
+      icon: '⚠',
+      color: '#c0392b',
+      desc: 'タスクを自分で進める力はあるが、途中経過の報告・共有が不足しがちなパターンです。上長や関係者が状況を把握しにくく、信頼形成の障壁になっている可能性があります。',
+      advice: '「タスクが完了したら報告」ではなく「途中でも定期的に共有する」習慣の定着を促す。完了報告よりも中間報告を評価する仕組みが有効です。'
+    });
+  }
+
+  // ─── パターン3: 実行過多・思考不足型 ───
+  // デリバリー力(E)が高く、イシュー思考(D)が相対的に低い
+  if(as['E'] >= 3.5 && as['D'] < as['E'] - 1.0){
+    tendencies.push({
+      label: '実行過多・思考不足の傾向',
+      icon: '📌',
+      color: '#e07b2c',
+      desc: '依頼されたことを実行する力は高い一方、「何を解くべきか」を考える前に手を動かしてしまう傾向が見られます。方向性が合っていれば高い成果を出せますが、問いの設定が間違うと手戻りが大きくなります。',
+      advice: '着手前に「本当の問いは何か」を確認する習慣を意識的につくる。評価者はタスク開始前に目的・ゴールを口頭で言語化させる。'
+    });
+  }
+
+  // ─── パターン4: 見せ方・伝え方が弱い思考家型 ───
+  // イシュー思考(D)が高く、ドキュメンテーション(B)とコミュニケーション(C)が低い
+  if(as['D'] >= 3.5 && as['B'] < 3.0 && as['C'] < 3.0){
+    tendencies.push({
+      label: '考えはあるが伝わっていない可能性',
+      icon: '📌',
+      color: '#e07b2c',
+      desc: '論点を捉える力や思考力は高い水準にありますが、それを資料・説明・報告として相手に伝える力が伴っていない状態です。本人の頭の中にある良い考えが、他者に届いていないもったいない状況です。',
+      advice: '成果物のレビュー時に「なぜこの構成にしたか」を口頭で説明させる機会を増やす。アウトプットの型（文章構成・資料設計）の訓練を優先する。'
+    });
+  }
+
+  // ─── パターン5: 安定性が低い・ムラがある ───
+  // 安定稼働(S18)が著しく低く、他スキルにバラつきがある
+  if(s['S19'] < avg - 0.7 && s['S20'] < avg - 0.5){
+    tendencies.push({
+      label: '業務品質・対応にムラが出やすい傾向',
+      icon: '📌',
+      color: '#e07b2c',
+      desc: '安定稼働力と品質意識のスコアが全体と比較して低い傾向があります。忙しい時期・調子の悪い日に品質や対応速度が落ちやすく、評価者が把握しにくい状態になりやすいです。',
+      advice: '繁忙期でも最低限維持する品質基準と行動を明文化し、本人と合意する。日々の振り返り習慣（5分の作業ログ）が安定稼働の定着に効果的。'
+    });
+  }
+
+  // ─── パターン6: 前提確認・合意形成が弱い思い込み型 ───
+  // 前提確認・期待値調整(S16)と差分把握(S11)が低い
+  if(s['S17'] < avg - 0.6 && s['S11'] < avg - 0.6){
+    tendencies.push({
+      label: '思い込みで進めやすい傾向',
+      icon: '📌',
+      color: '#e07b2c',
+      desc: '前提確認・期待値調整と差分把握のスコアが低い組み合わせは、「自分なりの解釈」で進めてしまい、後から手戻りが発生しやすいパターンです。悪意はなく、確認のスキルや習慣がまだ定着していない状態と考えられます。',
+      advice: '着手前の前提確認を必須アクションとして習慣化させる。「依頼内容と自分の理解を一致させてから動く」ことを繰り返し伝える。'
+    });
+  }
+
+  // ─── パターン7: 均一高スコアの中の相対的弱点 ───
+  // 全体的に高い（平均3.5以上）が、特定スキルだけ平均より0.8以上低い
+  if(avg >= 3.5){
+    const relWeakSkills = INTEGRATED_SKILLS.filter(sk => s[sk.id] < avg - 0.8);
+    if(relWeakSkills.length > 0 && relWeakSkills.length <= 3){
+      const names = relWeakSkills.map(sk => sk.name).join('・');
+      tendencies.push({
+        label: `全体水準は高いが「${names}」が相対的に弱い`,
+        icon: '💡',
+        color: '#2d80b0',
+        desc: `全体的な水準は高い評価です。ただし「${names}」のスコアが他と比較して相対的に低く、この差が成果物や対人場面で影響している可能性があります。絶対値では問題なく見えても、本人の水準との差として認識しておくことが重要です。`,
+        advice: `「${names}」を意識的に鍛えることで、現在の強みをより確実に発揮できる状態になります。ハイパフォーマー向けの課題として位置づける。`
+      });
+    }
+  }
+
+  return tendencies;
+}
+
+// ===== 優先強化スキル選定 =====
+function getPrioritySkills(skillScores, weakAreas, low){
+  const vals = Object.values(skillScores);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+
+  const skills = INTEGRATED_SKILLS.map(s => {
+    const sc = skillScores[s.id] || 0;
+    // 絶対スコアの低さ（低いほど高優先）
+    let priority = (5 - sc) * 2;
+    // 相対スコア：平均より低いほど追加ブースト
+    const deviation = avg - sc;
+    if(deviation > 0) priority += deviation * 1.5;
+    // 弱点領域との関連性でブースト
+    s.conn.forEach(c => {
+      if(weakAreas.some(wa => CORE_AREAS_MAP[wa] === c)) priority += 2;
+    });
+    // 低スコア時の基本動作補正
+    if(low && BASIC_SKILL_IDS.includes(s.id)) priority += 3;
+    return { ...s, score: sc, priority, deviation: parseFloat(deviation.toFixed(1)) };
+  });
+  return skills.sort((a,b) => b.priority - a.priority).slice(0,5);
+}
+
+// ===== 現状評価テキスト =====
+function getStatusText(score){
+  if(score >= 4.0) return { label:'良好', cls:'sb-hi', can:'通常業務を安定して高品質にこなせており、周囲への支援・展開も視野に入る状態です。', cannot:'さらに高い水準での型化・教育展開が次の課題です。' };
+  if(score >= 3.0) return { label:'自走可', cls:'sb-mid', can:'通常業務は独力でこなせる水準にあります。', cannot:'難度が高い場面や応用局面での質をさらに高める余地があります。' };
+  if(score >= 2.0) return { label:'要支援', cls:'sb-lo', can:'部分的には実行できる場面もあります。', cannot:'上位者の支援・確認が必要な場面が多く、自走するための基礎固めが必要です。' };
+  return { label:'要育成', cls:'sb-lo', can:'基礎的な理解や経験の積み上げが始まっている段階です。', cannot:'継続的な指導と実践の機会を通じて基礎から鍛える必要があります。' };
+}
+
+// ===== 本質課題生成 =====
+function genEssence(as, overall, weakAreas, low){
+  const wl = weakAreas.map(k => CORE_AREAS_MAP[k]);
+  const sl = Object.keys(as).filter(k => as[k] >= 3.0).map(k => CORE_AREAS_MAP[k]);
+  if(low) return {
+    title: '仕事の受け方・返し方・進め方の型が未成熟',
+    body: '現時点では、特定のコアスキルだけに課題があるというより、依頼を受ける、目的を確認する、作業に分解する、途中で報告する、期限内に返す、という基本的な業務遂行サイクルが十分に定着していない状態です。独力で任せられる業務範囲はまだ限定的ですが、基本動作を定着させることで、短期的にデリバリー力・コミュニケーションデザイン・ドキュメンテーションの改善が見込めます。',
+    theme: '業務遂行の基本動作の定着'
+  };
+  if(wl.length === 0) return {
+    title: '全領域が自走水準以上。リード・型化フェーズへの移行が次の課題',
+    body: '5領域すべてで通常業務を独力でこなせる水準にあります。次のステップは、他者のレビュー・支援・育成を担うリード役割への移行です。高品質な成果物の型化と、後輩・チームへの展開力を意識的に鍛えることが今後の課題です。',
+    theme: 'リード・型化スキルの習得'
+  };
+  if(sl.length > 0 && wl.length > 0) return {
+    title: wl.join('・') + 'における思考・実行の型が不安定',
+    body: sl.join('・') + 'は自走水準以上にある一方、' + wl.join('・') + 'に課題があります。実行はできているが、成果物の質・論点整理・伝達の型が整っていないケースが多く見られます。土台スキルの強化により、弱点領域の底上げが期待できます。',
+    theme: wl.join('・') + 'の底上げ'
+  };
+  return {
+    title: '複数領域に課題。基礎スキルの体系的な強化が必要',
+    body: '複数の領域で支援・確認が必要な水準にとどまっています。特定スキルの単点強化よりも、思考の型・実行の型・伝達の型を横断的に底上げすることが優先されます。',
+    theme: '基礎スキルの体系的底上げ'
+  };
+}
+
+// ===== 選定理由生成 =====
+function genSelReason(skill, weakAreas, low){
+  const affectedWeak = skill.conn.filter(c => weakAreas.some(wa => CORE_AREAS_MAP[wa] === c));
+  if(low && BASIC_SKILL_IDS.includes(skill.id)){
+    return `基本的な業務遂行サイクルの土台となるスキルです。まずこのスキルを定着させることが、全体的な底上げに直結します。`;
+  }
+  if(affectedWeak.length >= 2){
+    return `今回の課題領域である「${affectedWeak.join('」「')}」の両方に直接効くスキルです。1つ鍛えることで複数の領域が同時に改善されるため、優先的に取り組む価値があります。`;
+  }
+  if(affectedWeak.length === 1){
+    return `今回の課題領域である「${affectedWeak[0]}」の改善に直接つながるスキルです。スコアが${skill.score}点と低く、改善余地が大きい状態です。`;
+  }
+  return `今回の診断で課題が表れている可能性が高いスキルです。改善することで複数の領域に波及効果が期待できます。`;
+}
+
+// ===== 指導方針生成 =====
+function genGuidance(as, weakAreas, low){
+  const wl = weakAreas.map(k => CORE_AREAS_MAP[k]);
+  if(low) return [
+    'まずは毎日のタスク確認・一次返信・5W1H確認・進捗報告の型化を優先する。',
+    '高度な論点整理や資料作成の前に、依頼を正しく受けて期限内に返す業務遂行サイクルを定着させることが先決。',
+    '評価者は、作業着手前に目的・期限・アウトプットイメージを本人に言語化させる習慣をつける。'
+  ];
+  const lines = [];
+  if(wl.length > 0) lines.push(`${wl.join('・')}の改善を最優先テーマとして1on1・日次確認に組み込む。`);
+  if(as.B < 3 || as.D < 3) lines.push('成果物のレビュー時は、なぜその構成・論点にしたかを口頭で説明させてから確認する。');
+  if(as.C < 3) lines.push('報連相の粒度・タイミング・相手の設定を事前に決めさせ、実行後にフィードバックする。');
+  if(as.E < 3) lines.push('タスク開始前にゴール・完了条件・マイルストーンを本人に書かせる習慣をつける。');
+  if(lines.length === 0) lines.push('現水準を維持しながら、他者へのレビュー・フィードバック・型化に取り組む機会を増やす。');
+  return lines;
+}
+
+// ===== 改善後変化生成 =====
+function genChange(as, overall, weakAreas, low){
+  if(low) return 'レスポンス・目的確認・タスク分解・報連相の型が定着すると、依頼を正しく受けて期限内に返す力が高まります。その結果、デリバリー力とコミュニケーションデザインが改善し、徐々にドキュメンテーションやイシュー思考を鍛える土台が整います。';
+  const wl = weakAreas.map(k => CORE_AREAS_MAP[k]);
+  const sl = Object.keys(as).filter(k => as[k] >= 3.0).map(k => CORE_AREAS_MAP[k]);
+  if(wl.length === 0) return 'すでに全領域が自走水準にあります。リードレベルへの引き上げにより、チーム全体の底上げ役として機能できる状態になります。';
+  return `優先強化スキルを定着させることで、まず${wl.join('・')}の品質が安定してきます。${sl.length > 0 ? '現在の強みである' + sl.join('・') + 'と組み合わせることで、' : ''}徐々に上位者の支援なしに高品質な成果を出せる自走状態へ近づきます。`;
+}
+
+// ===== 診断実行 =====
+function submitDiagnosis(){
+  const tName = document.getElementById('targetName').value.trim();
+  const eName = document.getElementById('evaluatorName').value.trim();
+  const eDate = document.getElementById('evalDate').value;
+  const errFields = [];
+  if(!tName) errFields.push('対象者名');
+  if(!eName) errFields.push('評価者名');
+  if(!eDate) errFields.push('評価日');
+
+  const missing = [];
+  QUESTIONS.forEach(q => {
+    if(!scores[q.id]){
+      missing.push(q.id);
+      const g = document.getElementById('btns-'+q.id);
+      if(g) g.querySelectorAll('.score-btn').forEach(b => b.classList.add('error-btn'));
+      const blk = document.getElementById('block-'+q.id);
+      if(blk) blk.classList.add('error-block');
+    }
+  });
+
+  const errDiv = document.getElementById('err-msg');
+  if(errFields.length || missing.length){
+    let msg = errFields.length ? errFields.join('・') + 'を入力してください。' : '';
+    if(missing.length) msg += (msg ? ' ' : '') + `未採点の項目が${missing.length}件あります（赤枠の項目を確認してください）。`;
+    errDiv.textContent = msg;
+    errDiv.style.display = 'block';
+    if(missing.length) document.getElementById('block-'+missing[0]).scrollIntoView({behavior:'smooth',block:'center'});
+    else errDiv.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  errDiv.style.display = 'none';
+
+  // 計算
+  const as = calcAreaScores();
+  const skillScores = calcSkillScores();
+  const overall = parseFloat((Object.values(as).reduce((a,b)=>a+b,0)/5).toFixed(1));
+  const weakAreas = getWeakAreas(as);
+  const low = isLow(as, overall);
+  const skillClass = getSkillClass(as, overall);
+  const support = getSupportLevel(as, overall);
+  const personality = getPersonalityType(as, skillScores);
+  const essence = genEssence(as, overall, weakAreas, low);
+  const top5 = getPrioritySkills(skillScores, weakAreas, low);
+  const tendencies = getTendencies(skillScores, as, overall);
+  const glines = genGuidance(as, weakAreas, low);
+  const change = genChange(as, overall, weakAreas, low);
+  const teamVal = document.getElementById('team').value;
+  const memoVal = document.getElementById('overallMemo').value;
+  const weakLabels = weakAreas.map(k => CORE_AREAS_MAP[k]);
+
+  // メタ
+  document.getElementById('result-meta').innerHTML =
+    `<span>対象者：<strong>${tName}</strong></span>` +
+    `<span>評価者：${eName}</span>` +
+    `<span>${eDate}</span>` +
+    (teamVal ? `<span>${teamVal}</span>` : '');
+
+  // チャート
+  document.getElementById('overall-score-val').textContent = overall;
+  let scHTML = '';
+  ['A','B','C','D','E'].forEach(k => {
+    const sc = as[k];
+    const isW = weakAreas.includes(k);
+    const bc = isW ? 'var(--orange)' : 'var(--navy)';
+    scHTML += `<div class="score-row">
+      <span style="font-size:12px;min-width:170px;color:${isW?'#8a4010':'var(--navy)'}">${isW?'⚠ ':''}${CORE_AREAS_MAP[k]}</span>
+      <div class="score-bar-outer"><div class="score-bar-inner" style="width:${(sc/5*100).toFixed(0)}%;background:${bc}"></div></div>
+      <span class="score-num" style="color:${bc}">${sc}</span>
+    </div>`;
+  });
+  document.getElementById('area-scores-list').innerHTML = scHTML;
+
+  // 本質課題
+  document.getElementById('essence-card').innerHTML =
+    `<div class="ec-label">本質課題</div>
+    <h2>${essence.title}</h2>
+    <p>${essence.body}</p>
+    <div class="theme-pill">育成テーマ：${essence.theme}</div>`;
+
+  // サマリー
+  const weakAbsLabels  = Object.keys(as).filter(k => as[k] < 3.0).map(k => CORE_AREAS_MAP[k]);
+  const areaAvg = Object.values(as).reduce((a,b)=>a+b,0)/5;
+  const weakRelLabels  = Object.keys(as).filter(k => as[k] < areaAvg - 0.7 && as[k] >= 3.0).map(k => CORE_AREAS_MAP[k]);
+
+  let weakHTML = '';
+  if(weakAbsLabels.length){
+    weakHTML += weakAbsLabels.map(l=>`<span class="weak-tag">${l}</span>`).join('');
+  }
+  if(weakRelLabels.length){
+    weakHTML += `<span style="font-size:11px;color:var(--gray-text);margin-left:4px">＋相対的に低い：</span>` +
+      weakRelLabels.map(l=>`<span class="weak-tag" style="background:#eef4fc;color:#2d5080;border-color:#adc4e8">${l}</span>`).join('');
+  }
+  if(!weakAbsLabels.length && !weakRelLabels.length){
+    weakHTML = '<span style="color:var(--green);font-size:13px">課題領域なし（良好）</span>';
+  }
+
+  // 傾向分析HTML
+  let tendencyHTML = '';
+  if(tendencies.length > 0){
+    tendencyHTML = tendencies.map(t => `
+      <div style="border-left:3px solid ${t.color};background:#fafbfe;border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600;color:${t.color};margin-bottom:4px">${t.icon} ${t.label}</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.75;margin-bottom:5px">${t.desc}</div>
+        <div style="font-size:12px;color:var(--navy);background:var(--navy-light);padding:5px 8px;border-radius:4px"><strong>評価者へ：</strong>${t.advice}</div>
+      </div>`).join('');
+  } else {
+    tendencyHTML = '<p style="font-size:13px;color:var(--gray-text)">今回の結果から特定の傾向パターンは検出されませんでした。</p>';
+  }
+
+  document.getElementById('summary-grid').innerHTML =
+    // スキルクラス
+    `<div class="sum-item">
+      <div class="sum-label">スキルクラス<span style="font-size:10px;color:var(--gray-text);margin-left:5px">現在の人材水準</span></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px">
+        <span style="background:${skillClass.color};color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">Lv${skillClass.level} ${skillClass.label}</span>
+      </div>
+      <div style="font-size:12px;color:var(--gray-text);margin-top:5px;line-height:1.5">${skillClass.desc}</div>
+    </div>` +
+    // 育成支援レベル
+    `<div class="sum-item">
+      <div class="sum-label">育成支援レベル<span style="font-size:10px;color:var(--gray-text);margin-left:5px">必要な支援の程度</span></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px">
+        <span class="support-pill" style="background:${support.color}">${support.label}</span>
+      </div>
+      <div style="font-size:12px;color:var(--gray-text);margin-top:5px;line-height:1.5">${support.desc}</div>
+    </div>` +
+    // 人材タイプ（スパン2）
+    `<div class="sum-item" style="grid-column:span 2">
+      <div class="sum-label">人材タイプ<span style="font-size:10px;color:var(--gray-text);margin-left:5px">強みの傾向・仕事の進め方</span></div>
+      <div style="margin-top:6px">
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          <span class="type-pill" style="margin-right:8px;vertical-align:middle">${personality.type}</span>${personality.feature}
+        </div>
+        <div>
+          <div class="cols2" style="margin-top:10px">
+            <div style="font-size:12px;background:var(--navy-light);padding:6px 9px;border-radius:5px"><span style="color:var(--navy);font-weight:600">活かしどころ：</span>${personality.usecase}</div>
+            <div style="font-size:12px;background:#fff9f4;padding:6px 9px;border-radius:5px"><span style="color:#7a4010;font-weight:600">注意点：</span>${personality.caution}</div>
+            <div style="font-size:12px;background:var(--green-light);padding:6px 9px;border-radius:5px;grid-column:span 2"><span style="color:var(--green);font-weight:600">育成での伸ばし方：</span>${personality.dev}</div>
+          </div>
+        </div>
+      </div>
+    </div>` +
+    // 課題領域
+    `<div class="sum-item" style="grid-column:span 2">
+      <div class="sum-label">課題のある領域<span style="font-size:10px;font-weight:400;color:var(--gray-text);margin-left:5px">赤＝3.0未満　青＝全体平均より相対的に低い</span></div>
+      <div style="margin-top:4px">${weakHTML}</div>
+    </div>` +
+    // 傾向分析
+    `<div class="sum-item" style="grid-column:span 2">
+      <div class="sum-label" style="margin-bottom:10px">行動傾向分析<span style="font-size:10px;font-weight:400;color:var(--gray-text);margin-left:5px">スコアパターンから読み取れる育成上の注意点</span></div>
+      ${tendencyHTML}
+    </div>`;
+
+  // 優先強化スキル
+  let psHTML = '';
+  top5.forEach((sk, i) => {
+    const st = getStatusText(sk.score);
+    const sel = genSelReason(sk, weakAreas, low);
+    const connTags = sk.conn.map(c => `<span class="conn-tag">${c}</span>`).join('');
+    psHTML += `<div class="skill-card">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div class="skill-num">${i+1}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap">
+            <span style="font-size:15px;font-weight:700;color:var(--navy)">${sk.name}</span>
+            <span class="score-badge ${st.cls}">現スコア ${sk.score}</span>
+            <span style="font-size:11px;color:var(--gray-text)">${sk.cat}</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-text);margin-bottom:8px">${sk.def}</div>
+          <div class="info-box blue" style="margin-bottom:6px"><strong>このスキルを優先する理由：</strong>${sel}</div>
+          <div class="cols2" style="margin-bottom:8px">
+            <div class="info-box blue" style="margin-bottom:0"><strong>現状できていること：</strong>${st.can}</div>
+            <div class="info-box orange" style="margin-bottom:0"><strong>現状の課題：</strong>${st.cannot}</div>
+          </div>
+          <div class="info-box orange" style="margin-bottom:6px"><strong>改善方針：</strong>${QUESTIONS.find(q=>q.skillId===sk.id)?.improvement || '日常業務で意識的に実践する機会を設けてください。'}</div>
+          <div><span style="font-size:11px;color:var(--gray-text)">鍛えることで改善が期待できる領域：</span>${connTags}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('priority-skills').innerHTML = psHTML;
+
+  // 指導方針
+  document.getElementById('guidance-section').innerHTML =
+    glines.map(l => `<div class="info-box blue" style="margin-bottom:8px">${l}</div>`).join('');
+
+  // 改善後の変化
+  document.getElementById('change-section').innerHTML = `<div class="info-box green">${change}</div>`;
+
+  // 補助レポート（カテゴリ別折りたたみ）
+  let suppHTML = '';
+  Object.entries(SUPP_CATS).forEach(([cat, ids]) => {
+    suppHTML += `<details><summary>${cat}（${ids.length}スキル）</summary><div class="supp-inner">`;
+    ids.forEach(sid => {
+      const sk = INTEGRATED_SKILLS.find(s => s.id === sid);
+      const sc = skillScores[sid];
+      const st = getStatusText(sc);
+      const relQs = QUESTIONS.filter(q => q.skillId === sid);
+      const improvement = relQs[0]?.improvement || '';
+      const lowComment = relQs[0]?.lowComment || '';
+      suppHTML += `<div class="supp-skill-row">
+        <div class="supp-name">
+          ${sk.name}
+          <span class="score-badge ${st.cls}">${sc} 点 ／ ${st.label}</span>
+        </div>
+        <div class="supp-def">${sk.def}</div>
+        <div class="supp-grid">
+          <div class="supp-cell"><div class="sc-label">現状できていること</div>${st.can}</div>
+          <div class="supp-cell"><div class="sc-label">現状の課題</div>${sc < 3 ? lowComment : st.cannot}</div>
+          <div class="supp-cell" style="grid-column:span 2"><div class="sc-label">改善方針</div>${improvement}</div>
+        </div>
+        <div style="margin-top:6px"><span style="font-size:11px;color:var(--gray-text)">改善が期待できる領域：</span>${sk.conn.map(c=>`<span class="conn-tag">${c}</span>`).join('')}</div>
+      </div>`;
+    });
+    suppHTML += '</div></details>';
+  });
+  document.getElementById('supp-report').innerHTML = suppHTML;
+
+  // レーダーチャート
+  exportData = { tName, eName, eDate, team:teamVal, overallMemo:memoVal, as, skillScores, overall, weakAreas, weakLabels, skillClass, support, personality, essence, top5, glines, change, low, tendencies };
+  showPage('page-result');
+
+  setTimeout(() => {
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    if(radarInst){ radarInst.destroy(); radarInst = null; }
+    radarInst = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['PM', 'DOC', 'COM', 'ISSUE', 'DEL'],
+        datasets: [{
+          label: 'スコア',
+          data: ['A','B','C','D','E'].map(k => as[k]),
+          backgroundColor: 'rgba(26,53,96,.12)',
+          borderColor: 'var(--navy)',
+          borderWidth: 2,
+          pointBackgroundColor: 'var(--navy)',
+          pointRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { r: { min:0, max:5, ticks:{ stepSize:1, font:{size:10}, color:'var(--gray-text)' }, pointLabels:{ font:{size:12}, color:'var(--navy)' }, grid:{ color:'var(--navy-border)' }, angleLines:{ color:'var(--navy-border)' } } },
+        plugins: { legend: { display:false } }
+      }
+    });
+  }, 120);
+}
+
+// ===== PDF出力 =====
+function exportPDF(){
+  if(!exportData) return;
+  const d = exportData;
+  const date = d.eDate.replace(/-/g,'');
+  const chartImg = document.getElementById('radarChart') ? document.getElementById('radarChart').toDataURL('image/png') : '';
+
+  const tendH = d.tendencies.length > 0
+    ? d.tendencies.map(t =>
+        `<div style="border-left:3px solid ${t.color};padding:8px 12px;background:#fafbfe;border-radius:0 4px 4px 0;margin-bottom:6px">
+          <div style="font-size:12px;font-weight:700;color:${t.color};margin-bottom:3px">${t.icon} ${t.label}</div>
+          <div style="font-size:11px;line-height:1.7;margin-bottom:4px">${t.desc}</div>
+          <div style="font-size:11px;background:#f0f6ff;padding:4px 8px;border-radius:3px"><b>評価者へ：</b>${t.advice}</div>
+        </div>`).join('')
+    : '<p style="font-size:12px;color:#666">特定の傾向パターンは検出されませんでした。</p>';
+
+  const scH = ['A','B','C','D','E'].map(k => {
+    const sc = d.as[k]; const iw = d.weakAreas.includes(k);
+    return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e8f0f8"><span style="color:${iw?'#8a4010':'#1a3560'}">${iw?'⚠ ':''}${CORE_AREAS_MAP[k]}</span><strong style="color:${iw?'#e07b2c':'#1a3560'}">${sc}</strong></div>`;
+  }).join('');
+
+  const skH = d.top5.map((sk, i) => {
+    const st = getStatusText(sk.score);
+    const sel = genSelReason(sk, d.weakAreas, d.low);
+    const imp = QUESTIONS.find(q=>q.skillId===sk.id)?.improvement || '';
+    return `<div style="border:1px solid #d0e0f4;border-radius:6px;padding:10px 12px;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:#1a3560;margin-bottom:3px">${i+1}. ${sk.name} <span style="font-size:11px;font-weight:400;color:#666">（${sk.score}点 ／ ${st.label}）</span></div>
+      <div style="font-size:11px;color:#666;margin-bottom:5px">${sk.def}</div>
+      <div style="font-size:12px;background:#f0f6ff;padding:5px 8px;border-left:2px solid #1a3560;border-radius:0 4px 4px 0;margin-bottom:3px"><b>優先する理由：</b>${sel}</div>
+      <div style="font-size:12px;background:#f5f8fd;padding:5px 8px;border-radius:4px;margin-bottom:3px"><b>できていること：</b>${st.can}　<b>課題：</b>${st.cannot}</div>
+      <div style="font-size:12px;background:#fff9f4;padding:5px 8px;border-left:2px solid #e07b2c;border-radius:0 4px 4px 0;margin-bottom:3px"><b>改善方針：</b>${imp}</div>
+      <div style="font-size:11px;color:#4a6a9a">改善領域：${sk.conn.join(' / ')}</div>
+    </div>`;
+  }).join('');
+
+  const gH = d.glines.map(l => `<div style="font-size:12px;padding:5px 8px;background:#f0f6ff;border-left:2px solid #1a3560;margin-bottom:4px;border-radius:0 4px 4px 0">${l}</div>`).join('');
+
+  // 補助レポート全展開
+  let suppH = '';
+  Object.entries(SUPP_CATS).forEach(([cat, ids]) => {
+    suppH += `<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#1a3560;border-bottom:1px solid #c0d4f0;padding-bottom:3px;margin-bottom:6px">${cat}</div>`;
+    ids.forEach(sid => {
+      const sk = INTEGRATED_SKILLS.find(s => s.id === sid);
+      const sc = d.skillScores[sid];
+      const st = getStatusText(sc);
+      const imp = QUESTIONS.find(q=>q.skillId===sid)?.improvement || '';
+      const lc = QUESTIONS.find(q=>q.skillId===sid)?.lowComment || '';
+      suppH += `<div style="padding:6px 0;border-bottom:1px solid #eef2f8">
+        <div style="font-size:12px;font-weight:600;color:#1a3560">${sk.name} <span style="font-size:11px;font-weight:400;color:#666">（${sc}点 ／ ${st.label}）</span></div>
+        <div style="font-size:11px;color:#666">${sk.def}</div>
+        <div style="font-size:11px;color:#1a3560;margin-top:3px"><b>できていること：</b>${st.can}</div>
+        <div style="font-size:11px;color:#6a3010;margin-top:2px"><b>課題：</b>${sc<3?lc:st.cannot}</div>
+        <div style="font-size:11px;color:#1a3560;margin-top:2px"><b>改善方針：</b>${imp}</div>
+        <div style="font-size:11px;color:#4a6a9a;margin-top:2px">改善領域：${sk.conn.join(' / ')}</div>
+      </div>`;
+    });
+    suppH += '</div>';
+  });
+
+  const pw = window.open('','_blank','width=880,height=1100');
+  if(!pw){ alert('ポップアップブロックを解除してください。'); return; }
+  pw.document.write(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>コンサルスキル診断結果_${d.tName}_${date}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;color:#1a3560;padding:20px;background:#fff;font-size:13px}
+  .hdr{background:#1a3560;color:#fff;padding:14px 18px;border-radius:8px;margin-bottom:14px}.hdr h1{font-size:18px;margin-bottom:3px}.meta{font-size:11px;opacity:.8}
+  .ess{background:#1a3560;color:#fff;padding:14px 16px;border-radius:8px;margin-bottom:14px}.ess h3{font-size:11px;opacity:.7;margin-bottom:4px}.ess h2{font-size:15px;margin-bottom:8px}.ess p{font-size:12px;line-height:1.8;opacity:.9}.theme{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:3px 12px;font-size:11px;margin-top:8px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.card{border:1px solid #c0d4f0;border-radius:8px;padding:12px;margin-bottom:12px}.ct{font-size:13px;font-weight:700;color:#1a3560;border-bottom:2px solid #1a3560;padding-bottom:5px;margin-bottom:8px}
+  .si{padding:7px 10px;background:#f5f8fd;border-radius:6px;margin-bottom:7px}.si label{font-size:11px;color:#4a6a9a;display:block;margin-bottom:2px}.si .v{font-size:13px;font-weight:600}
+  .badge{display:inline-block;background:#e07b2c;color:#fff;padding:3px 12px;border-radius:12px;font-size:12px}
+  .page-break{page-break-before:always;padding-top:20px}
+  @media print{.hdr,.ess{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>`);
+  pw.document.write(`<div class="hdr"><h1>コンサルスキル診断結果</h1><div class="meta">対象者：${d.tName}　評価者：${d.eName}　評価日：${d.eDate}${d.team?'　所属：'+d.team:''}</div></div>`);
+  pw.document.write(`<div class="g2">
+    <div><div class="ct">5領域スキルチャート</div>${chartImg?`<img src="${chartImg}" style="width:100%;max-height:200px;object-fit:contain">`:''}
+    <div style="margin-top:8px;font-size:13px;font-weight:700;color:#1a3560">総合スコア：${d.overall} / 5.0</div></div>
+    <div><div class="ct">5領域スコア</div>${scH}
+    <div class="si" style="margin-top:8px"><label>スキルクラス（現在の人材水準）</label><div><span style="background:${d.skillClass.color};color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">Lv${d.skillClass.level} ${d.skillClass.label}</span></div><div style="font-size:11px;color:#666;margin-top:2px">${d.skillClass.desc}</div></div>
+    <div class="si"><label>育成支援レベル（必要な支援の程度）</label><div><span style="background:${d.support.color};color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">${d.support.label}</span></div><div style="font-size:11px;color:#666;margin-top:2px">${d.support.desc}</div></div>
+    <div class="si"><label>人材タイプ（強みの傾向）</label><div><span style="background:#e07b2c;color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">${d.personality.type}</span><span style="font-size:11px;color:#666;margin-left:6px">${d.personality.feature}</span></div></div>
+    <div class="si"><label>課題領域</label><span style="font-size:12px;color:#8a4010">${d.weakLabels.join('・') || '課題領域なし'}</span></div></div>
+  </div>`);
+  pw.document.write(`<div class="ess"><h3>本質課題</h3><h2>${d.essence.title}</h2><p>${d.essence.body}</p><div class="theme">育成テーマ：${d.essence.theme}</div></div>`);
+  pw.document.write(`<div class="card"><div class="ct">優先強化スキル（上位5個）</div>${skH}</div>`);
+  pw.document.write(`<div class="card"><div class="ct">傾向分析</div>${tendH}</div>`);
+  pw.document.write(`<div class="card"><div class="ct">評価者の指導方針</div>${gH}</div>`);
+  pw.document.write(`<div class="card"><div class="ct">改善後に期待される変化</div><div style="font-size:12px;padding:8px;background:#f0fff5;border-left:2px solid #1a7a3c;border-radius:0 4px 4px 0">${d.change}</div></div>`);
+  pw.document.write(`<div class="page-break"><div class="card"><div class="ct">補助レポート（20土台スキル 現状診断）</div>${suppH}</div>`);
+  if(d.overallMemo) pw.document.write(`<div class="card"><div class="ct">総評メモ</div><p style="font-size:12px;line-height:1.8">${d.overallMemo}</p></div>`);
+  pw.document.write(`<script>window.onload=function(){window.print();}<\/script></body></html>`);
+  pw.document.close();
+}
+
+// ===== イベント登録 =====
+document.getElementById('startBtn').addEventListener('click', () => showPage('page-input'));
+document.getElementById('aboutBtn').addEventListener('click', () => showPage('page-guide'));
+document.getElementById('backToTopBtn').addEventListener('click', () => showPage('page-top'));
+document.getElementById('guideToInputBtn').addEventListener('click', () => showPage('page-input'));
+document.getElementById('guideToTopBtn').addEventListener('click', () => showPage('page-top'));
+
+// ─── タブ切替 ───
+document.querySelectorAll('.guide-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.guide-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ─── 土台スキル一覧をJS生成 ───
+(function buildSkillList(){
+  const container = document.getElementById('skill-list');
+  if(!container) return;
+  const CATS_ORDER = ['マインドセット基盤','認知・思考基盤','情報整理基盤','表現・伝達基盤','実行・推進基盤','信頼形成基盤'];
+  CATS_ORDER.forEach(cat => {
+    const skills = INTEGRATED_SKILLS.filter(s => s.cat === cat);
+    const catDiv = document.createElement('div');
+    catDiv.style.cssText = 'margin-bottom:.5rem';
+    catDiv.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--navy);background:var(--navy-light);padding:5px 10px;border-radius:4px;margin-bottom:4px">' + cat + '</div>';
+    skills.forEach(s => {
+      const connStr = s.conn.join(' / ');
+      const row = document.createElement('div');
+      row.style.cssText = 'border:1px solid var(--navy-border);border-radius:6px;padding:.75rem 1rem;margin-bottom:.4rem;background:#fff';
+      row.innerHTML = '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px">' + s.name + '</div>' +
+        '<div style="font-size:12px;color:var(--gray-text);margin-bottom:4px">' + s.def + '</div>' +
+        '<div style="font-size:11px;color:var(--navy)">改善が期待できる領域：' + connStr + '</div>';
+      catDiv.appendChild(row);
+    });
+    container.appendChild(catDiv);
+  });
+})();
+document.getElementById('submitBtn').addEventListener('click', submitDiagnosis);
+['resultToTopBtn','resultToTopBtn2'].forEach(id => document.getElementById(id).addEventListener('click', () => showPage('page-top')));
+['restartBtn','restartBtn2'].forEach(id => document.getElementById(id).addEventListener('click', () => { scores={}; buildQuestions(); showPage('page-input'); }));
+['pdfBtn','pdfBtn2'].forEach(id => document.getElementById(id).addEventListener('click', exportPDF));
+
+buildQuestions();
+
+// 評価日に「今日」を初期表示（ユーザーは手動で変更も可能）
+(function(){
+  const d = new Date();
+  const ymd = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  document.getElementById('evalDate').value = ymd;
+})();
+})();
+</script>
+</body>
+</html>
