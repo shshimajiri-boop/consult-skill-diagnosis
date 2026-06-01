@@ -295,7 +295,7 @@ details[open] summary { border-radius: 6px 6px 0 0; }
 
   <!-- ── タブ3: タイプ一覧 ── -->
   <div class="guide-panel" id="tab-types">
-    <p style="font-size:13px;color:var(--gray-text);margin-bottom:.75rem;line-height:1.7">診断結果は「スキルクラス（水準）」「人材タイプ（傾向）」「育成支援レベル（支援の程度）」の3つを分けて表示します。</p>
+    <p style="font-size:13px;color:var(--gray-text);margin-bottom:.75rem;line-height:1.7">診断結果は「スキルクラス（水準）」「人材タイプ（業務適性）」「育成支援レベル（支援の程度）」の3つを分けて表示します。</p>
 
     <div style="background:var(--navy-light);border:1px solid var(--navy-border);border-radius:8px;padding:.875rem 1rem;margin-bottom:1.25rem;font-size:13px;line-height:1.75">
       <strong style="color:var(--navy)">3つを分ける理由：</strong>水準・傾向・支援ニーズは別の情報です。同じ「水準が低い人」でも、実行推進型なのか探索思考型なのかで育成方針が変わります。3つを分けることで、より的確な育成判断ができます。
@@ -310,8 +310,8 @@ details[open] summary { border-radius: 6px 6px 0 0; }
       <div style="border-left:4px solid #8a6a4a;background:#fdf8f3;border-radius:0 7px 7px 0;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:#8a6a4a">Lv1 アソシエイトクラス</div><div style="font-size:12px;color:var(--gray-text);margin-top:2px">上記以外。基礎業務遂行を習得中で、支援・レビューが継続的に必要な段階</div></div>
     </div>
 
-    <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--navy)">② 人材タイプ（強みの傾向）</div>
-    <p style="font-size:12px;color:var(--gray-text);margin-bottom:.75rem">弱点からではなく、相対的に高いスキル・領域から判定します。スコアが低くても、最も得意な傾向からタイプを決定します。</p>
+    <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--navy)">② 人材タイプ（業務適性・伸ばす方向）</div>
+    <p style="font-size:12px;color:var(--gray-text);margin-bottom:.75rem">人材タイプは弱点ラベルではなく、<strong>どの業務に適性があり、どの方向に伸ばすとよいか</strong>を示します。相対的に高い領域・土台スキルから判定し、各タイプに特化しやすい業務・向いている役割・注意点・育成方針を表示します。全体水準が低く強み傾向が出ない場合は「判定保留」とします。</p>
     <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem">
       <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">実行推進型</div><div style="font-size:12px;color:var(--gray-text)">DEL・タスク進捗管理・レスポンス報連相が相対的に高い。手を動かして前に進める力が強い</div></div>
       <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">構造整理型</div><div style="font-size:12px;color:var(--gray-text)">DOC・構造化MECE・情報整理・情報差分把握・課題整理が相対的に高い。情報を整理し構造化して考える力が強い</div></div>
@@ -321,7 +321,7 @@ details[open] summary { border-radius: 6px 6px 0 0; }
       <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">安定運用型</div><div style="font-size:12px;color:var(--gray-text)">DEL・安定稼働リカバリー・品質意識が相対的に高い。期限・進捗・運用を安定させる力が強い</div></div>
       <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">成長吸収型</div><div style="font-size:12px;color:var(--gray-text)">学習改善姿勢・誠実性信頼行動が相対的に高い。指摘を吸収し改善につなげる力が強い</div></div>
       <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">巻き込み先導型</div><div style="font-size:12px;color:var(--gray-text)">PM・当事者意識・先回りリスク感度・COMが相対的に高い。周囲を巻き込み場を前に進める力が強い</div></div>
-      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">バランス型</div><div style="font-size:12px;color:var(--gray-text)">いずれかに偏らず、複数の領域をバランスよく備えている状態</div></div>
+      <div style="border:1px solid var(--navy-border);border-radius:7px;padding:.75rem 1rem"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">総合安定型</div><div style="font-size:12px;color:var(--gray-text)">5領域のばらつきが小さく、通常業務を安定して遂行できる。幅広い横断支援に向く</div></div>
     </div>
 
     <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--navy)">③ 育成支援レベル（必要な支援の程度）</div>
@@ -439,7 +439,7 @@ details[open] summary { border-radius: 6px 6px 0 0; }
     </div>
   </div>
 
-  <!-- 1. チャート + スコア -->
+  <!-- 1+2. チャート + 5領域スコア -->
   <div class="chart-score-grid" id="chart-score-grid">
     <div class="card" style="margin-bottom:0">
       <div class="card-title">5領域スキルチャート</div>
@@ -455,25 +455,40 @@ details[open] summary { border-radius: 6px 6px 0 0; }
     </div>
   </div>
 
-  <!-- 2. 本質課題 -->
+  <!-- 3. スキルクラス -->
+  <div class="card" id="skillclass-card"></div>
+
+  <!-- 4. 人材タイプ（業務適性） -->
+  <div class="card" id="type-card"></div>
+
+  <!-- 5. 育成支援レベル -->
+  <div class="card" id="support-card"></div>
+
+  <!-- 6. 本質課題 -->
   <div id="essence-card" class="essence-card"></div>
 
-  <!-- 3. 診断サマリー -->
-  <div class="summary-grid" id="summary-grid"></div>
+  <!-- 6.5 課題のある領域 -->
+  <div class="card" id="weakareas-card"></div>
 
-  <!-- 4. 優先強化スキル -->
+  <!-- 7. 優先強化スキル -->
   <div class="card">
     <div class="card-title">優先強化スキル（上位5個）</div>
     <div id="priority-skills"></div>
   </div>
 
-  <!-- 5. 指導方針 -->
+  <!-- 8. 行動傾向分析 -->
+  <div class="card">
+    <div class="card-title">行動傾向分析<span style="font-size:11px;font-weight:400;color:var(--gray-text);margin-left:6px">スコアパターンから読み取れる育成上の注意点</span></div>
+    <div id="tendency-section"></div>
+  </div>
+
+  <!-- 9. 指導方針 -->
   <div class="card">
     <div class="card-title">評価者の指導方針</div>
     <div id="guidance-section"></div>
   </div>
 
-  <!-- 6. 改善後の変化 -->
+  <!-- 10. 改善後の変化 -->
   <div class="card">
     <div class="card-title">改善後に期待される変化</div>
     <div id="change-section"></div>
@@ -1402,46 +1417,92 @@ function getSupportLevel(as, overall){
 }
 
 // ===== 人材タイプ判定 =====
-// 強みの傾向から判定。弱点ラベルは使わない。
+// 人材タイプ＝業務適性・特化領域。弱点ラベルではなく、相対的に高い領域・土台スキルから判定する。
+// 全体水準が低く強み傾向が出ない場合は「判定保留」とする。
 function getPersonalityType(as, skillScores){
-  const sAvg = Object.values(skillScores).reduce((a,b)=>a+b,0) / Object.values(skillScores).length;
-  const aAvg = Object.values(as).reduce((a,b)=>a+b,0) / 5;
-  // 相対的に高いかどうかの判定ヘルパー
-  const isHiA = k => as[k] >= Math.max(3.5, aAvg + 0.4);
-  const isHiS = id => skillScores[id] >= Math.max(3.2, sAvg + 0.4);
+  const areaVals  = Object.values(as);
+  const skillVals = Object.values(skillScores);
+  const sAvg = skillVals.reduce((a,b)=>a+b,0) / skillVals.length;
+  const aAvg = areaVals.reduce((a,b)=>a+b,0) / areaVals.length; // ≒総合スコア
+  const maxArea = Math.max(...areaVals), minArea = Math.min(...areaVals);
+  const maxSkill = Math.max(...skillVals);
 
-  // タイプ別スコアリング
+  // ── 判定保留判定（低スコア者には無理に付与しない）──
+  const allAreasLow  = areaVals.every(v => v < 3.0);
+  const allSkillsLow = skillVals.every(v => v < 3.0);
+  const judgeable = (aAvg >= 2.8) || (maxArea >= 3.2) || (maxSkill >= 3.2);
+  const hold = (aAvg < 2.5) || allAreasLow || allSkillsLow || !judgeable
+             || (aAvg < 2.8 && (maxArea - minArea) < 0.5);
+  if(hold){
+    return {
+      hold: true,
+      type: '判定保留',
+      reason: '全体的に基礎スキルの定着段階であり、現時点では明確な業務適性や強み傾向を判定するよりも、業務遂行の基本動作を整えることが優先です。'
+    };
+  }
+
+  // ── 相対的に高い判定（4.1）──
+  const sorted = [...skillVals].sort((a,b)=>b-a);
+  const top25 = sorted[Math.max(0, Math.floor(skillVals.length * 0.25) - 1)];
+  const isHiA = k  => as[k] >= 3.5 || as[k] >= aAvg + 0.5;
+  const isHiS = id => skillScores[id] >= 3.5 || skillScores[id] >= sAvg + 0.5 || skillScores[id] >= top25;
+
+  // ── タイプ別スコアリング（高い領域・土台スキルから業務適性を判定）──
   const scores = {
-    '実行推進型':    (isHiA('E')?3:0)+(isHiS('S18')?2:0)+(isHiS('S16')?2:0)+(isHiS('S01')?1:0)+(as['E']>aAvg+0.3?1:0),
-    '構造整理型':    (isHiA('B')?3:0)+(isHiS('S08')?2:0)+(isHiS('S10')?2:0)+(isHiS('S11')?1:0)+(isHiS('S12')?1:0),
-    '対人調整型':    (isHiA('C')?3:0)+(isHiS('S14')?2:0)+(isHiS('S16')?2:0)+(isHiS('S11')?2:0)+(isHiS('S17')?1:0),
-    '品質管理型':    (isHiS('S20')?3:0)+(isHiS('S11')?2:0)+(isHiS('S03')?2:0)+(isHiA('B')?1:0),
-    '探索思考型':    (isHiA('D')?3:0)+(isHiS('S06')?2:0)+(isHiS('S07')?2:0)+(isHiS('S09')?2:0)+(isHiS('S12')?2:0),
-    '安定運用型':    (isHiA('E')?2:0)+(isHiS('S19')?3:0)+(isHiS('S20')?2:0)+(isHiS('S18')?1:0)+(isHiS('S11')?1:0),
-    '成長吸収型':    (isHiS('S03')?3:0)+(isHiS('S04')?2:0)+(as['A']>aAvg+0.3?1:0),
-    '巻き込み先導型': (isHiA('A')?3:0)+(isHiS('S02')?2:0)+(isHiS('S21')?2:0)+(isHiA('C')?1:0)+(isHiS('S12')?1:0),
+    '実行推進型':    (isHiA('E')?2:0)+(isHiS('S18')?1:0)+(isHiS('S16')?1:0),
+    '構造整理型':    (isHiA('B')?2:0)+(isHiS('S08')?1:0)+(isHiS('S10')?1:0)+(isHiS('S12')?1:0),
+    '対人調整型':    (isHiA('C')?2:0)+(isHiS('S14')?1:0)+(isHiS('S11')?1:0)+(isHiS('S16')?1:0),
+    '品質管理型':    (isHiS('S20')?2:0)+(isHiS('S03')?1:0)+(isHiS('S10')?1:0)+(isHiA('B')?1:0),
+    '探索思考型':    (isHiA('D')?2:0)+(isHiS('S06')?1:0)+(isHiS('S07')?1:0)+(isHiS('S09')?1:0)+(isHiS('S12')?1:0),
+    '安定運用型':    (isHiA('E')?1:0)+(isHiS('S19')?2:0)+(isHiS('S18')?1:0)+(isHiS('S20')?1:0),
+    '成長吸収型':    (isHiS('S03')?2:0)+(isHiS('S04')?1:0)+(isHiS('S20')?1:0),
+    '巻き込み先導型': (isHiA('A')?2:0)+(isHiS('S02')?1:0)+(isHiS('S01')?1:0)+(isHiS('S21')?1:0)+(isHiA('C')?1:0),
   };
+  const scoreVals = Object.values(scores).sort((a,b)=>b-a);
+  const bestSc = scoreVals[0] || 0;
+  const secondSc = scoreVals[1] || 0;
+  let best = Object.keys(scores).find(t => scores[t] === bestSc);
 
-  // 最高スコアのタイプを選択（同点はオブジェクト順で先行）
-  let best = 'バランス型'; let bestSc = 0;
-  Object.entries(scores).forEach(([type, sc]) => { if(sc > bestSc){ bestSc = sc; best = type; }});
-  // スコアが低すぎる場合はバランス型
-  if(bestSc < 3) best = 'バランス型';
+  // ── 総合安定型（ばらつきが小さく、相対的な突出がない場合）──
+  const balanced = aAvg >= 3.2 && minArea >= 3.0 && (maxArea - minArea) <= 0.6;
+  if(!best || bestSc === 0 || (balanced && (bestSc - secondSc) <= 1)) best = '総合安定型';
 
-  const TYPE_DEF = {
-    '実行推進型':    { feature:'手を動かして物事を前に進める力が強いタイプです。行動量・実行スピードが武器になります。', usecase:'期限が明確な作業、タスク推進、運用改善、進捗管理が必要な場面で力を発揮しやすいです。', caution:'目的や論点確認が浅いまま進めると、手戻りが発生しやすくなります。', dev:'実行力を活かしつつ、着手前に目的・論点・完了条件を確認する習慣をつけることで、成果の再現性が高まります。' },
-    '構造整理型':    { feature:'情報を整理し、構造化して考える傾向が強いタイプです。物事の骨格を見抜く力があります。', usecase:'資料作成、業務整理、論点整理、議事メモ、ナレッジ化が得意です。', caution:'実行スピードや周囲の巻き込みが遅れることがあります。', dev:'整理力を活かしながら、アウトプットのスピードと関係者への早期共有を意識させることで実力が発揮できます。' },
-    '対人調整型':    { feature:'関係者との会話・調整・合意形成を進める傾向が強いタイプです。人を動かす力があります。', usecase:'顧客折衝、会議運営、ヒアリング、関係者調整で力を発揮しやすいです。', caution:'成果物化や論点の深掘りが弱くなることがあります。', dev:'対人調整力を活かしつつ、議論結果を構造化して成果物に落とす訓練を行うと更に成長できます。' },
-    '品質管理型':    { feature:'正確性・品質・レビュー観点を重視する傾向が強いタイプです。ミスを減らす目線があります。', usecase:'成果物レビュー、品質管理、チェック業務、PMO、運用改善に向いています。', caution:'スピードや大胆な仮説構築が弱くなることがあります。', dev:'品質への強みを活かしつつ、初期仮説を置いて早く検証する経験を増やすと幅が広がります。' },
-    '探索思考型':    { feature:'仮説・論点・新しい打ち手を考える傾向が強いタイプです。問いを立てる力があります。', usecase:'課題設定、企画検討、調査分析、論点整理に力を発揮しやすいです。', caution:'実行管理や着地が甘くなることがあります。', dev:'思考力を活かしつつ、タスク分解・進捗管理・成果物化までやり切る訓練を行うと飛躍できます。' },
-    '安定運用型':    { feature:'期限・進捗・運用を安定させる傾向が強いタイプです。ブレない稼働ができます。', usecase:'定常運用、PMO、進捗管理、業務改善、運用定着に向いています。', caution:'新規課題や曖昧な論点設定では支援が必要な場合があります。', dev:'安定運用力を活かしつつ、曖昧な状況で問いを立てる経験を増やすと対応幅が広がります。' },
-    '成長吸収型':    { feature:'指摘やレビューを吸収し、改善につなげる傾向が強いタイプです。素直な成長力があります。', usecase:'育成初期、レビューを受けながら成長する業務、型の習得に向いています。', caution:'まだ自分の型が弱く、経験や環境に左右されやすいです。', dev:'良い型を反復させ、レビュー内容を次回行動に転用する練習を行うと急成長が見込めます。' },
-    '巻き込み先導型':{ feature:'周囲を巻き込み、場を前に進める傾向が強いタイプです。牽引力があります。', usecase:'会議推進、顧客調整、関係者巻き込み、プロジェクト推進に力を発揮しやすいです。', caution:'細部の品質や論理整合が抜けることがあります。', dev:'巻き込み力を活かしつつ、論理構成・品質管理・差分確認を補強すると信頼性が高まります。' },
-    'バランス型':    { feature:'複数の領域を安定してこなせる、バランスのとれたタイプです。状況に応じて幅広く対応できます。', usecase:'幅広い業務に対応でき、チームの状況に応じた柔軟な役割を担えます。', caution:'軸となる得意領域を1つ意識的に伸ばすと、強みとしてさらに際立たせやすくなります。', dev:'自分が最も成果を出しやすい場面を振り返り、得意パターンを自覚して伸ばすと、強みがより明確になります。' },
-  };
+  const def = TYPE_DEF[best] || TYPE_DEF['総合安定型'];
+  return { type: best, hold: false, ...def };
+}
 
-  const def = TYPE_DEF[best] || TYPE_DEF['バランス型'];
-  return { type: best, ...def };
+// 人材タイプ定義（業務適性ラベル）
+const TYPE_DEF = {
+  '実行推進型':   { feature:'物事を前に進める力があり、行動量・推進力を武器にしやすいタイプです。', toku:'タスク推進、進捗管理、運用改善、定型業務の改善、PMO補佐', role:'実行担当、進行管理、タスクオーナー、運用改善担当', usecase:'期限やゴールが明確で、着実に前に進める必要がある場面で力を発揮します。', caution:'目的や論点確認が浅いまま進めると、手戻りが発生しやすくなります。', dev:'実行力を活かしつつ、着手前に目的・論点・完了条件を確認する習慣をつける。' },
+  '構造整理型':   { feature:'情報を整理し、構造化して考える力が強いタイプです。', toku:'業務整理、資料作成、議事メモ、論点整理、マニュアル作成、ナレッジ化', role:'ドキュメント担当、業務整理担当、要件整理補佐、ナレッジ整備担当', usecase:'情報が散らばっており、整理・見える化・構造化が必要な場面で力を発揮します。', caution:'整理に時間をかけすぎると、実行スピードや巻き込みが遅れることがあります。', dev:'整理力を活かしながら、早い段階でラフ案を出し、関係者とすり合わせる習慣をつける。' },
+  '対人調整型':   { feature:'相手との情報差や認識ズレを捉え、会話・調整・合意形成を進める力が強いタイプです。', toku:'ヒアリング、会議運営、関係者調整、顧客対応、合意形成支援', role:'顧客窓口補佐、会議ファシリテーション補佐、ヒアリング担当、調整担当', usecase:'関係者が多く、認識合わせや合意形成が重要な場面で力を発揮します。', caution:'会話や調整に寄りすぎると、論点の深掘りや成果物化が弱くなることがあります。', dev:'対人調整力を活かしつつ、会話内容を構造化し、議事メモ・論点表・アクション表に落とす訓練を行う。' },
+  '品質管理型':   { feature:'正確性・品質・チェック観点を重視する力が強いタイプです。', toku:'成果物レビュー、品質管理、チェック業務、PMO、運用改善、手順整備', role:'品質確認担当、レビュー補佐、PMO補佐、手順書・チェックリスト整備担当', usecase:'ミスを防ぐ、品質を安定させる、運用のばらつきを抑える場面で力を発揮します。', caution:'品質を重視しすぎると、スピードや大胆な仮説構築が弱くなることがあります。', dev:'品質管理力を活かしつつ、初期仮説を置いて早く検証する経験を増やす。' },
+  '探索思考型':   { feature:'論点・仮説・新しい打ち手を考える力が強いタイプです。', toku:'課題設定、企画検討、調査分析、仮説検証、打ち手検討', role:'調査分析担当、企画検討担当、論点整理担当、新規テーマ検討担当', usecase:'正解が明確でなく、問いの設定や仮説構築が必要な場面で力を発揮します。', caution:'実行管理や着地が甘くなると、考えただけで終わることがあります。', dev:'思考力を活かしつつ、タスク分解・進捗管理・成果物化までやり切る訓練を行う。' },
+  '安定運用型':   { feature:'期限・進捗・運用を安定させる力が強いタイプです。', toku:'定常運用、進捗管理、PMO、業務改善、運用定着、課題管理', role:'運用担当、PMO補佐、進捗管理担当、課題管理担当', usecase:'継続的に回す必要がある業務や、抜け漏れなく管理する必要がある場面で力を発揮します。', caution:'新規課題や曖昧な論点設定では支援が必要な場合があります。', dev:'安定運用力を活かしつつ、曖昧な状況で問いを立てる経験を増やす。' },
+  '成長吸収型':   { feature:'指摘やレビューを吸収し、改善につなげる力が強いタイプです。', toku:'型の習得、レビュー前提の資料作成、基礎スキル習得、反復改善が必要な業務', role:'育成対象メンバー、補佐担当、レビュー前提の実行担当', usecase:'良い型をインプットし、短期間で改善していく場面で力を発揮します。', caution:'まだ自分の型が定まりきっておらず、経験やレビュー環境に左右されやすい段階です。', dev:'良い型を反復させ、レビュー内容を次回行動に転用する練習を行う。' },
+  '巻き込み先導型':{ feature:'周囲を巻き込み、場を前に進める力が強いタイプです。', toku:'会議推進、関係者巻き込み、顧客調整、プロジェクト推進、合意形成', role:'推進担当、顧客折衝補佐、会議オーナー、関係者調整担当', usecase:'関係者が多く、自分から動いて場を前に進める必要がある場面で力を発揮します。', caution:'細部の品質や論理整合が抜けると、勢いだけで進めている印象になることがあります。', dev:'巻き込み力を活かしつつ、論理構成・品質管理・前提確認を補強する。' },
+  '総合安定型':   { feature:'5領域のばらつきが小さく、通常業務を安定して遂行できるタイプです。', toku:'複数テーマの横断支援、標準的なコンサル業務、幅広い補佐業務', role:'汎用型コンサル、横断支援担当、複数タスク担当', usecase:'特定領域に偏らず、幅広い業務を安定して進める必要がある場面で力を発揮します。', caution:'突出領域が見えにくいため、次の段階では専門性や強み領域を明確化する必要があります。', dev:'幅広い対応力を活かしつつ、今後の専門領域・リード領域を意識的に作る。' },
+};
+
+// 人材タイプカードのHTMLを生成
+function buildTypeCard(p){
+  const hdr = `<div class="card-title">人材タイプ<span style="font-size:11px;font-weight:400;color:var(--gray-text);margin-left:6px">業務適性・伸ばす方向</span></div>`;
+  if(p.hold){
+    return hdr +
+      `<div style="margin-bottom:8px"><span style="background:#8a96a8;color:#fff;padding:5px 16px;border-radius:20px;font-size:14px;font-weight:700">判定保留</span></div>
+       <div style="font-size:13px;color:var(--text);line-height:1.8;background:var(--bg2);border:1px solid var(--navy-border);border-radius:8px;padding:10px 14px"><span style="font-weight:600;color:var(--navy)">理由：</span>${p.reason}</div>`;
+  }
+  return hdr +
+    `<div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:4px">
+       <span class="type-pill" style="margin-right:8px;vertical-align:middle">${p.type}</span>${p.feature}
+     </div>
+     <div class="cols2" style="margin-top:10px">
+       <div style="font-size:12px;background:var(--navy-light);padding:8px 11px;border-radius:6px;line-height:1.65"><div style="color:var(--navy);font-weight:700;margin-bottom:2px">特化しやすい業務</div>${p.toku}</div>
+       <div style="font-size:12px;background:var(--navy-light);padding:8px 11px;border-radius:6px;line-height:1.65"><div style="color:var(--navy);font-weight:700;margin-bottom:2px">向いている役割</div>${p.role}</div>
+     </div>
+     <div style="font-size:12px;background:var(--green-light);padding:8px 11px;border-radius:6px;line-height:1.65;margin-top:8px"><span style="color:var(--green);font-weight:700">活かしどころ：</span>${p.usecase}</div>
+     <div style="font-size:12px;background:var(--orange-light);padding:8px 11px;border-radius:6px;line-height:1.65;margin-top:8px"><span style="color:#7a4010;font-weight:700">注意点：</span>${p.caution}</div>
+     <div style="font-size:12px;background:var(--navy-light);padding:8px 11px;border-radius:6px;line-height:1.65;margin-top:8px"><span style="color:var(--navy);font-weight:700">育成方針：</span>${p.dev}</div>`;
 }
 
 function isLow(as, overall){
@@ -1691,6 +1752,9 @@ function submitDiagnosis(){
   const top5 = getPrioritySkills(skillScores, weakAreas, low);
   const tendencies = getTendencies(skillScores, as, overall);
   const glines = genGuidance(as, weakAreas, low);
+  if(!personality.hold){
+    glines.push(`業務適性（${personality.type}）を踏まえ、強みを活かす方向で育成する：${personality.dev}（注意点：${personality.caution}）`);
+  }
   const change = genChange(as, overall, weakAreas, low);
   const teamVal = document.getElementById('team').value;
   const memoVal = document.getElementById('overallMemo').value;
@@ -1718,6 +1782,21 @@ function submitDiagnosis(){
   });
   document.getElementById('area-scores-list').innerHTML = scHTML;
 
+  // スキルクラス
+  document.getElementById('skillclass-card').innerHTML =
+    `<div class="card-title">スキルクラス<span style="font-size:11px;font-weight:400;color:var(--gray-text);margin-left:6px">現在の人材水準</span></div>
+     <div><span style="background:${skillClass.color};color:#fff;padding:5px 16px;border-radius:20px;font-size:14px;font-weight:700">Lv${skillClass.level} ${skillClass.label}</span></div>
+     <div style="font-size:13px;color:var(--gray-text);margin-top:8px;line-height:1.7">${skillClass.desc}</div>`;
+
+  // 人材タイプ（業務適性）
+  document.getElementById('type-card').innerHTML = buildTypeCard(personality);
+
+  // 育成支援レベル
+  document.getElementById('support-card').innerHTML =
+    `<div class="card-title">育成支援レベル<span style="font-size:11px;font-weight:400;color:var(--gray-text);margin-left:6px">必要な支援の程度</span></div>
+     <div><span class="support-pill" style="background:${support.color}">${support.label}</span></div>
+     <div style="font-size:13px;color:var(--gray-text);margin-top:8px;line-height:1.7">${support.desc}</div>`;
+
   // 本質課題
   document.getElementById('essence-card').innerHTML =
     `<div class="ec-label">本質課題</div>
@@ -1725,24 +1804,19 @@ function submitDiagnosis(){
     <p>${essence.body}</p>
     <div class="theme-pill">育成テーマ：${essence.theme}</div>`;
 
-  // サマリー
+  // 課題のある領域
   const weakAbsLabels  = Object.keys(as).filter(k => as[k] < 3.0).map(k => CORE_AREAS_MAP[k]);
   const areaAvg = Object.values(as).reduce((a,b)=>a+b,0)/5;
   const weakRelLabels  = Object.keys(as).filter(k => as[k] < areaAvg - 0.7 && as[k] >= 3.0).map(k => CORE_AREAS_MAP[k]);
-
   let weakHTML = '';
-  if(weakAbsLabels.length){
-    weakHTML += weakAbsLabels.map(l=>`<span class="weak-tag">${l}</span>`).join('');
-  }
-  if(weakRelLabels.length){
-    weakHTML += `<span style="font-size:11px;color:var(--gray-text);margin-left:4px">＋相対的に低い：</span>` +
-      weakRelLabels.map(l=>`<span class="weak-tag" style="background:#eef4fc;color:#2d5080;border-color:#adc4e8">${l}</span>`).join('');
-  }
-  if(!weakAbsLabels.length && !weakRelLabels.length){
-    weakHTML = '<span style="color:var(--green);font-size:13px">課題領域なし（良好）</span>';
-  }
+  if(weakAbsLabels.length){ weakHTML += weakAbsLabels.map(l=>`<span class="weak-tag">${l}</span>`).join(''); }
+  if(weakRelLabels.length){ weakHTML += `<span style="font-size:11px;color:var(--gray-text);margin-left:4px">＋相対的に低い：</span>` + weakRelLabels.map(l=>`<span class="weak-tag" style="background:#eef4fc;color:#2d5080;border-color:#adc4e8">${l}</span>`).join(''); }
+  if(!weakAbsLabels.length && !weakRelLabels.length){ weakHTML = '<span style="color:var(--green);font-size:13px">課題領域なし（良好）</span>'; }
+  document.getElementById('weakareas-card').innerHTML =
+    `<div class="card-title">課題のある領域<span style="font-size:11px;font-weight:400;color:var(--gray-text);margin-left:6px">赤＝3.0未満　青＝全体平均より相対的に低い</span></div>
+     <div>${weakHTML}</div>`;
 
-  // 傾向分析HTML
+  // 行動傾向分析
   let tendencyHTML = '';
   if(tendencies.length > 0){
     tendencyHTML = tendencies.map(t => `
@@ -1754,50 +1828,7 @@ function submitDiagnosis(){
   } else {
     tendencyHTML = '<p style="font-size:13px;color:var(--gray-text)">今回の結果から特定の傾向パターンは検出されませんでした。</p>';
   }
-
-  document.getElementById('summary-grid').innerHTML =
-    // スキルクラス
-    `<div class="sum-item">
-      <div class="sum-label">スキルクラス<span style="font-size:10px;color:var(--gray-text);margin-left:5px">現在の人材水準</span></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px">
-        <span style="background:${skillClass.color};color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700">Lv${skillClass.level} ${skillClass.label}</span>
-      </div>
-      <div style="font-size:12px;color:var(--gray-text);margin-top:5px;line-height:1.5">${skillClass.desc}</div>
-    </div>` +
-    // 育成支援レベル
-    `<div class="sum-item">
-      <div class="sum-label">育成支援レベル<span style="font-size:10px;color:var(--gray-text);margin-left:5px">必要な支援の程度</span></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px">
-        <span class="support-pill" style="background:${support.color}">${support.label}</span>
-      </div>
-      <div style="font-size:12px;color:var(--gray-text);margin-top:5px;line-height:1.5">${support.desc}</div>
-    </div>` +
-    // 人材タイプ（スパン2）
-    `<div class="sum-item" style="grid-column:span 2">
-      <div class="sum-label">人材タイプ<span style="font-size:10px;color:var(--gray-text);margin-left:5px">強みの傾向・仕事の進め方</span></div>
-      <div style="margin-top:6px">
-        <div style="font-size:13px;color:var(--text);line-height:1.7">
-          <span class="type-pill" style="margin-right:8px;vertical-align:middle">${personality.type}</span>${personality.feature}
-        </div>
-        <div>
-          <div class="cols2" style="margin-top:10px">
-            <div style="font-size:12px;background:var(--navy-light);padding:6px 9px;border-radius:5px"><span style="color:var(--navy);font-weight:600">活かしどころ：</span>${personality.usecase}</div>
-            <div style="font-size:12px;background:#fff9f4;padding:6px 9px;border-radius:5px"><span style="color:#7a4010;font-weight:600">注意点：</span>${personality.caution}</div>
-            <div style="font-size:12px;background:var(--green-light);padding:6px 9px;border-radius:5px;grid-column:span 2"><span style="color:var(--green);font-weight:600">育成での伸ばし方：</span>${personality.dev}</div>
-          </div>
-        </div>
-      </div>
-    </div>` +
-    // 課題領域
-    `<div class="sum-item" style="grid-column:span 2">
-      <div class="sum-label">課題のある領域<span style="font-size:10px;font-weight:400;color:var(--gray-text);margin-left:5px">赤＝3.0未満　青＝全体平均より相対的に低い</span></div>
-      <div style="margin-top:4px">${weakHTML}</div>
-    </div>` +
-    // 傾向分析
-    `<div class="sum-item" style="grid-column:span 2">
-      <div class="sum-label" style="margin-bottom:10px">行動傾向分析<span style="font-size:10px;font-weight:400;color:var(--gray-text);margin-left:5px">スコアパターンから読み取れる育成上の注意点</span></div>
-      ${tendencyHTML}
-    </div>`;
+  document.getElementById('tendency-section').innerHTML = tendencyHTML;
 
   // 優先強化スキル
   let psHTML = '';
@@ -1971,7 +2002,12 @@ function exportPDF(){
     <div><div class="ct">5領域スコア</div>${scH}
     <div class="si" style="margin-top:8px"><label>スキルクラス（現在の人材水準）</label><div><span style="background:${d.skillClass.color};color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">Lv${d.skillClass.level} ${d.skillClass.label}</span></div><div style="font-size:11px;color:#666;margin-top:2px">${d.skillClass.desc}</div></div>
     <div class="si"><label>育成支援レベル（必要な支援の程度）</label><div><span style="background:${d.support.color};color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">${d.support.label}</span></div><div style="font-size:11px;color:#666;margin-top:2px">${d.support.desc}</div></div>
-    <div class="si"><label>人材タイプ（強みの傾向）</label><div><span style="background:#e07b2c;color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">${d.personality.type}</span><span style="font-size:11px;color:#666;margin-left:6px">${d.personality.feature}</span></div></div>
+    <div class="si"><label>人材タイプ（業務適性・伸ばす方向）</label>${ d.personality.hold
+      ? `<div><span style="background:#8a96a8;color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">判定保留</span></div><div style="font-size:11px;color:#666;margin-top:3px">${d.personality.reason}</div>`
+      : `<div><span style="background:#e07b2c;color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700">${d.personality.type}</span><span style="font-size:11px;color:#666;margin-left:6px">${d.personality.feature}</span></div>
+         <div style="font-size:11px;color:#1a3560;margin-top:3px"><b>特化しやすい業務：</b>${d.personality.toku}</div>
+         <div style="font-size:11px;color:#1a3560;margin-top:2px"><b>向いている役割：</b>${d.personality.role}</div>
+         <div style="font-size:11px;color:#6a3010;margin-top:2px"><b>注意点：</b>${d.personality.caution}</div>` }</div>
     <div class="si"><label>課題領域</label><span style="font-size:12px;color:#8a4010">${d.weakLabels.join('・') || '課題領域なし'}</span></div></div>
   </div>`);
   pw.document.write(`<div class="ess"><h3>本質課題</h3><h2>${d.essence.title}</h2><p>${d.essence.body}</p><div class="theme">育成テーマ：${d.essence.theme}</div></div>`);
