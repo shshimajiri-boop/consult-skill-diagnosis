@@ -1316,8 +1316,10 @@ function buildQuestions(){
   const container = document.getElementById('questions-container');
   container.innerHTML = '';
   let prevCat = '';
-  currentQuestions.forEach(q => {
+  currentQuestions.forEach((q, idx) => {
     const skill = INTEGRATED_SKILLS.find(s => s.id === q.skillId);
+    // 簡易モードは表示番号を連番（Q1〜）に。内部IDは元のまま。
+    const dispNo = (DIAG_MODE === 'simple') ? 'Q' + (idx + 1) : q.id;
     if(skill.cat !== prevCat){
       const hdr = document.createElement('div');
       hdr.className = 'section-hdr';
@@ -1344,7 +1346,7 @@ function buildQuestions(){
     btnHTML += '</div>';
 
     block.innerHTML = `
-      <div class="q-label">${q.id} ／ ${skill.name}</div>
+      <div class="q-label">${dispNo} ／ ${skill.name}</div>
       <div class="q-text">${q.text}</div>
       ${critHTML}
       ${btnHTML}
@@ -2080,7 +2082,7 @@ function exportPDF(){
   pw.document.write(`<div class="card"><div class="ct">改善後に期待される変化</div><div style="font-size:12px;padding:8px;background:#f0fff5;border-left:2px solid #1a7a3c;border-radius:0 4px 4px 0">${d.change}</div></div>`);
   pw.document.write(`<div class="page-break"><div class="card"><div class="ct">補助レポート（20土台スキル 現状診断）</div>${suppH}</div>`);
   if(d.overallMemo) pw.document.write(`<div class="card"><div class="ct">総評メモ</div><p style="font-size:12px;line-height:1.8">${d.overallMemo}</p></div>`);
-  pw.document.write(`<script>window.onload=function(){window.print();}<\/script></body></html>`);
+  pw.document.write(`<script>window.onload=function(){setTimeout(function(){window.print();},300);};window.onafterprint=function(){window.close();};<\/script></body></html>`);
   pw.document.close();
 }
 
