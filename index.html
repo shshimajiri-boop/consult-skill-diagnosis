@@ -1274,15 +1274,29 @@ let exportData = null;
 let currentQuestions = QUESTIONS; // 出題中の質問セット（簡易/詳細で切替）
 let DIAG_MODE = 'full';           // 'full'（詳細）| 'simple'（簡易）
 
-// 簡易診断用：各領域から代表2問を、なるべく重複なく間隔をあけて抽出した短縮セット
+// 簡易診断用の短縮セット。
+// ① 5領域すべてから代表問を抽出（各領域に実データ設問を割り当て）
+// ② 6つの土台スキルカテゴリも最低1問ずつカバー
+// ③ 念のため全領域に最低1問あることを保証
 function getSimpleQuestions(){
+  const skillCatOf = id => (INTEGRATED_SKILLS.find(s => s.id === id) || {}).cat;
+  const catOfQ = q => skillCatOf(q.skillId);
   const pickedIds = new Set();
+  // ① 各領域から代表2問（重複を避け、間隔をあけて選ぶ）
   ['A','B','C','D','E'].forEach(area => {
     const qs = QUESTIONS.filter(q => q.areas.includes(area) && !pickedIds.has(q.id));
     const idxs = qs.length <= 2 ? qs.map((_, i) => i) : [0, Math.floor(qs.length / 2)];
     idxs.forEach(i => { if(qs[i]) pickedIds.add(qs[i].id); });
   });
-  // 念のため全領域に最低1問あることを保証
+  // ② 全スキルカテゴリを最低1問カバー
+  [...new Set(INTEGRATED_SKILLS.map(s => s.cat))].forEach(cat => {
+    const covered = [...pickedIds].some(id => catOfQ(QUESTIONS.find(q => q.id === id)) === cat);
+    if(!covered){
+      const q = QUESTIONS.find(q => catOfQ(q) === cat);
+      if(q) pickedIds.add(q.id);
+    }
+  });
+  // ③ 全領域に最低1問あることを保証
   ['A','B','C','D','E'].forEach(area => {
     if(![...pickedIds].some(id => QUESTIONS.find(q => q.id === id).areas.includes(area))){
       const q = QUESTIONS.find(q => q.areas.includes(area));
@@ -1972,17 +1986,27 @@ function submitDiagnosis(){
         datasets: [{
           label: 'スコア',
           data: ['A','B','C','D','E'].map(k => as[k]),
-          backgroundColor: 'rgba(26,53,96,.12)',
-          borderColor: 'var(--navy)',
+          backgroundColor: 'rgba(45,80,128,.18)',
+          borderColor: '#2d5080',
           borderWidth: 2,
-          pointBackgroundColor: 'var(--navy)',
-          pointRadius: 5,
+          pointBackgroundColor: '#1a3560',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1.5,
+          pointRadius: 4,
+          pointHoverRadius: 5,
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        scales: { r: { min:0, max:5, ticks:{ stepSize:1, font:{size:10}, color:'var(--gray-text)' }, pointLabels:{ font:{size:12}, color:'var(--navy)' }, grid:{ color:'var(--navy-border)' }, angleLines:{ color:'var(--navy-border)' } } },
-        plugins: { legend: { display:false } }
+        scales: { r: {
+          min:0, max:5, beginAtZero:true,
+          ticks:{ stepSize:1, font:{size:10}, color:'#9aacc4', backdropColor:'rgba(255,255,255,.85)', showLabelBackdrop:true },
+          pointLabels:{ font:{size:11, weight:'600'}, color:'#1a3560' },
+          grid:{ color:'#dce6f4' },
+          angleLines:{ color:'#dce6f4' }
+        } },
+        plugins: { legend: { display:false } },
+        elements: { line: { tension:0 } }
       }
     });
   }, 120);
