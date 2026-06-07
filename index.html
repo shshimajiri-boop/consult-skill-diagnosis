@@ -194,12 +194,16 @@ details[open] summary { border-radius: 6px 6px 0 0; }
 <div id="page-top" class="page active">
   <div class="top-hero">
     <h1>コンサルスキル診断</h1>
-    <p style="font-size:14px;color:var(--gray-text);margin-bottom:1.5rem;line-height:1.7">40問の採点から5領域スコアと20の土台スキルを自動算出。<br>育成すべきポイントと指導方針を明確にします。</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">
-      <button class="btn btn-primary" id="startBtn" style="font-size:15px;padding:13px 36px">診断を開始する</button>
-      <button class="btn btn-secondary" id="aboutBtn" style="font-size:15px;padding:13px 36px">このアプリについて</button>
+    <p style="font-size:14px;color:var(--gray-text);margin-bottom:1.5rem;line-height:1.7">採点から5領域スコアと20の土台スキルを自動算出。<br>育成すべきポイントと指導方針を明確にします。</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn btn-primary" id="startBtn" style="font-size:15px;padding:13px 32px">詳細診断を始める</button>
+      <button class="btn btn-primary" id="simpleStartBtn" style="font-size:15px;padding:13px 32px;background:var(--orange)">かんたん診断を始める</button>
     </div>
-    <p style="font-size:12px;color:var(--gray-text)">所要時間：10〜15分</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;font-size:11px;color:var(--gray-text)">
+      <span>詳細：約40問・10〜15分（土台スキルも実測）</span>
+      <span>かんたん：約10問・約5分（要点をすばやく把握）</span>
+    </div>
+    <button class="btn btn-secondary" id="aboutBtn" style="font-size:14px;padding:10px 28px">このアプリについて</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem">
     <div class="feat-card"><div class="icon">📊</div><h3>5領域スコア</h3><p>スキルバランスをレーダーチャートで可視化</p></div>
@@ -403,7 +407,7 @@ details[open] summary { border-radius: 6px 6px 0 0; }
 <!-- ===== INPUT ===== -->
 <div id="page-input" class="page">
   <h2 style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px">診断入力</h2>
-  <p style="font-size:13px;color:var(--gray-text);margin-bottom:1.25rem">40問のスキル項目を1〜5点で評価してください</p>
+  <p id="input-subtitle" style="font-size:13px;color:var(--gray-text);margin-bottom:1.25rem">スキル項目を1〜5点で評価してください</p>
   <div class="card">
     <div class="card-title">対象者情報</div>
     <div class="form-row">
@@ -1245,6 +1249,14 @@ const CORE_AREAS_MAP = {
   E: 'デリバリー力',
 };
 const AREA_SHORTS = { A:'PM', B:'DOC', C:'COM', D:'ISSUE', E:'DEL' };
+// 各領域が「何を見ているか」の平易な説明（結果ページ用）
+const AREA_DESC = {
+  A: '責任感・顧客視点をもってプロらしく動く力',
+  B: '資料・文書を分かりやすく正確に作る力',
+  C: '報連相・説明・合意形成を設計する力',
+  D: '何を解くべきか見極め、仮説で示唆を出す力',
+  E: 'ゴール・期限・品質を管理し、やり切る力',
+};
 
 // ===== スキルカテゴリ =====
 const SUPP_CATS = {
@@ -1259,6 +1271,38 @@ const SUPP_CATS = {
 let scores = {}; // { Q01: 3, Q02: 2, ... }
 let radarInst = null;
 let exportData = null;
+let currentQuestions = QUESTIONS; // 出題中の質問セット（簡易/詳細で切替）
+let DIAG_MODE = 'full';           // 'full'（詳細）| 'simple'（簡易）
+
+// 簡易診断用：各領域から代表2問を、なるべく重複なく間隔をあけて抽出した短縮セット
+function getSimpleQuestions(){
+  const pickedIds = new Set();
+  ['A','B','C','D','E'].forEach(area => {
+    const qs = QUESTIONS.filter(q => q.areas.includes(area) && !pickedIds.has(q.id));
+    const idxs = qs.length <= 2 ? qs.map((_, i) => i) : [0, Math.floor(qs.length / 2)];
+    idxs.forEach(i => { if(qs[i]) pickedIds.add(qs[i].id); });
+  });
+  // 念のため全領域に最低1問あることを保証
+  ['A','B','C','D','E'].forEach(area => {
+    if(![...pickedIds].some(id => QUESTIONS.find(q => q.id === id).areas.includes(area))){
+      const q = QUESTIONS.find(q => q.areas.includes(area));
+      if(q) pickedIds.add(q.id);
+    }
+  });
+  return QUESTIONS.filter(q => pickedIds.has(q.id)); // 元の順序を維持
+}
+
+// 診断モードを切り替えて入力画面を組み直す
+function setDiagMode(mode){
+  DIAG_MODE = mode;
+  currentQuestions = (mode === 'simple') ? getSimpleQuestions() : QUESTIONS;
+  scores = {};
+  buildQuestions();
+  const sub = document.getElementById('input-subtitle');
+  if(sub) sub.textContent = (mode === 'simple')
+    ? `簡易診断：${currentQuestions.length}問のスキル項目を1〜5点で評価してください（所要約5分）`
+    : `${currentQuestions.length}問のスキル項目を1〜5点で評価してください`;
+}
 
 // ===== ページ切替 =====
 function showPage(id){
@@ -1272,7 +1316,7 @@ function buildQuestions(){
   const container = document.getElementById('questions-container');
   container.innerHTML = '';
   let prevCat = '';
-  QUESTIONS.forEach(q => {
+  currentQuestions.forEach(q => {
     const skill = INTEGRATED_SKILLS.find(s => s.id === q.skillId);
     if(skill.cat !== prevCat){
       const hdr = document.createElement('div');
@@ -1326,15 +1370,16 @@ function buildQuestions(){
 
 function updateProgress(){
   const answered = Object.keys(scores).length;
-  const pct = (answered / QUESTIONS.length * 100).toFixed(0);
+  const pct = (answered / currentQuestions.length * 100).toFixed(0);
   document.getElementById('progressBar').style.width = pct + '%';
 }
 
 // ===== スコア計算 =====
 function calcAreaScores(){
   const areaScores = { A:[], B:[], C:[], D:[], E:[] };
-  QUESTIONS.forEach(q => {
-    const s = scores[q.id] || 0;
+  currentQuestions.forEach(q => {
+    const s = scores[q.id];
+    if(!s) return; // 未採点は集計しない
     q.areas.forEach(a => areaScores[a].push(s));
   });
   const result = {};
@@ -1345,12 +1390,22 @@ function calcAreaScores(){
   return result;
 }
 
-function calcSkillScores(){
+// 土台スキルスコア。出題された問から算出し、簡易診断などで未計測のスキルは
+// そのスキルが関係する領域スコアの平均から推定する。
+function calcSkillScores(as){
+  const labelToKey = {};
+  Object.keys(CORE_AREAS_MAP).forEach(k => { labelToKey[CORE_AREAS_MAP[k]] = k; });
   const result = {};
   INTEGRATED_SKILLS.forEach(s => {
-    const qs = QUESTIONS.filter(q => q.skillId === s.id);
-    const vals = qs.map(q => scores[q.id] || 0);
-    result[s.id] = vals.length ? parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)) : 0;
+    const vals = currentQuestions.filter(q => q.skillId === s.id).map(q => scores[q.id]).filter(v => v);
+    if(vals.length){
+      result[s.id] = parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1));
+    } else if(as){
+      const areaVals = (s.conn || []).map(name => as[labelToKey[name]]).filter(v => v);
+      result[s.id] = areaVals.length ? parseFloat((areaVals.reduce((a,b)=>a+b,0)/areaVals.length).toFixed(1)) : 0;
+    } else {
+      result[s.id] = 0;
+    }
   });
   return result;
 }
@@ -1717,7 +1772,7 @@ function submitDiagnosis(){
   if(!eDate) errFields.push('評価日');
 
   const missing = [];
-  QUESTIONS.forEach(q => {
+  currentQuestions.forEach(q => {
     if(!scores[q.id]){
       missing.push(q.id);
       const g = document.getElementById('btns-'+q.id);
@@ -1741,7 +1796,7 @@ function submitDiagnosis(){
 
   // 計算
   const as = calcAreaScores();
-  const skillScores = calcSkillScores();
+  const skillScores = calcSkillScores(as);
   const overall = parseFloat((Object.values(as).reduce((a,b)=>a+b,0)/5).toFixed(1));
   const weakAreas = getWeakAreas(as);
   const low = isLow(as, overall);
@@ -1765,7 +1820,8 @@ function submitDiagnosis(){
     `<span>対象者：<strong>${tName}</strong></span>` +
     `<span>評価者：${eName}</span>` +
     `<span>${eDate}</span>` +
-    (teamVal ? `<span>${teamVal}</span>` : '');
+    (teamVal ? `<span>${teamVal}</span>` : '') +
+    (DIAG_MODE === 'simple' ? `<span style="background:var(--orange);color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700">かんたん診断</span>` : '');
 
   // チャート
   document.getElementById('overall-score-val').textContent = overall;
@@ -1774,10 +1830,13 @@ function submitDiagnosis(){
     const sc = as[k];
     const isW = weakAreas.includes(k);
     const bc = isW ? 'var(--orange)' : 'var(--navy)';
-    scHTML += `<div class="score-row">
-      <span style="font-size:12px;min-width:170px;color:${isW?'#8a4010':'var(--navy)'}">${isW?'⚠ ':''}${CORE_AREAS_MAP[k]}</span>
-      <div class="score-bar-outer"><div class="score-bar-inner" style="width:${(sc/5*100).toFixed(0)}%;background:${bc}"></div></div>
-      <span class="score-num" style="color:${bc}">${sc}</span>
+    scHTML += `<div class="score-row" style="align-items:flex-start">
+      <span style="min-width:150px;max-width:150px;flex-shrink:0">
+        <span style="font-size:13px;font-weight:600;color:${isW?'#8a4010':'var(--navy)'}">${isW?'⚠ ':''}${CORE_AREAS_MAP[k]}<span style="font-size:10px;font-weight:400;color:var(--gray-text)">（${AREA_SHORTS[k]}）</span></span>
+        <span style="display:block;font-size:10.5px;color:var(--gray-text);line-height:1.4;margin-top:2px">${AREA_DESC[k]}</span>
+      </span>
+      <div class="score-bar-outer" style="margin-top:6px"><div class="score-bar-inner" style="width:${(sc/5*100).toFixed(0)}%;background:${bc}"></div></div>
+      <span class="score-num" style="color:${bc};margin-top:2px">${sc}</span>
     </div>`;
   });
   document.getElementById('area-scores-list').innerHTML = scHTML;
@@ -1893,7 +1952,9 @@ function submitDiagnosis(){
     });
     suppHTML += '</div></details>';
   });
-  document.getElementById('supp-report').innerHTML = suppHTML;
+  document.getElementById('supp-report').innerHTML =
+    (DIAG_MODE === 'simple' ? `<div style="font-size:12px;color:#6a3010;background:var(--orange-light);border:1px solid #e8c090;border-radius:7px;padding:8px 12px;margin-bottom:12px;line-height:1.7">かんたん診断では、20の土台スキルは5領域スコアからの<strong>推定値</strong>です。正確な土台スキル診断には詳細診断（全40問）をご利用ください。</div>` : '') +
+    suppHTML;
 
   // レーダーチャート
   exportData = { tName, eName, eDate, team:teamVal, overallMemo:memoVal, as, skillScores, overall, weakAreas, weakLabels, skillClass, support, personality, essence, top5, glines, change, low, tendencies };
@@ -1905,7 +1966,7 @@ function submitDiagnosis(){
     radarInst = new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: ['PM', 'DOC', 'COM', 'ISSUE', 'DEL'],
+        labels: [['プロフェッショナル','マインド'], ['ドキュメン','テーション'], ['コミュニケーション','デザイン'], 'イシュー思考', 'デリバリー力'],
         datasets: [{
           label: 'スコア',
           data: ['A','B','C','D','E'].map(k => as[k]),
@@ -1943,14 +2004,14 @@ function exportPDF(){
 
   const scH = ['A','B','C','D','E'].map(k => {
     const sc = d.as[k]; const iw = d.weakAreas.includes(k);
-    return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e8f0f8"><span style="color:${iw?'#8a4010':'#1a3560'}">${iw?'⚠ ':''}${CORE_AREAS_MAP[k]}</span><strong style="color:${iw?'#e07b2c':'#1a3560'}">${sc}</strong></div>`;
+    return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid #e8f0f8"><span style="color:${iw?'#8a4010':'#1a3560'}"><span style="font-weight:600">${iw?'⚠ ':''}${CORE_AREAS_MAP[k]}</span><span style="display:block;font-size:10px;color:#7a8aa0">${AREA_DESC[k]}</span></span><strong style="color:${iw?'#e07b2c':'#1a3560'};white-space:nowrap;margin-left:8px">${sc}</strong></div>`;
   }).join('');
 
   const skH = d.top5.map((sk, i) => {
     const st = getStatusText(sk.score);
     const sel = genSelReason(sk, d.weakAreas, d.low);
     const imp = QUESTIONS.find(q=>q.skillId===sk.id)?.improvement || '';
-    return `<div style="border:1px solid #d0e0f4;border-radius:6px;padding:10px 12px;margin-bottom:8px">
+    return `<div class="pb" style="border:1px solid #d0e0f4;border-radius:6px;padding:10px 12px;margin-bottom:8px">
       <div style="font-size:13px;font-weight:700;color:#1a3560;margin-bottom:3px">${i+1}. ${sk.name} <span style="font-size:11px;font-weight:400;color:#666">（${sk.score}点 ／ ${st.label}）</span></div>
       <div style="font-size:11px;color:#666;margin-bottom:5px">${sk.def}</div>
       <div style="font-size:12px;background:#f0f6ff;padding:5px 8px;border-left:2px solid #1a3560;border-radius:0 4px 4px 0;margin-bottom:3px"><b>優先する理由：</b>${sel}</div>
@@ -1972,7 +2033,7 @@ function exportPDF(){
       const st = getStatusText(sc);
       const imp = QUESTIONS.find(q=>q.skillId===sid)?.improvement || '';
       const lc = QUESTIONS.find(q=>q.skillId===sid)?.lowComment || '';
-      suppH += `<div style="padding:6px 0;border-bottom:1px solid #eef2f8">
+      suppH += `<div class="pb" style="padding:6px 0;border-bottom:1px solid #eef2f8">
         <div style="font-size:12px;font-weight:600;color:#1a3560">${sk.name} <span style="font-size:11px;font-weight:400;color:#666">（${sc}点 ／ ${st.label}）</span></div>
         <div style="font-size:11px;color:#666">${sk.def}</div>
         <div style="font-size:11px;color:#1a3560;margin-top:3px"><b>できていること：</b>${st.can}</div>
@@ -1989,10 +2050,12 @@ function exportPDF(){
   pw.document.write(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>コンサルスキル診断結果_${d.tName}_${date}</title>
   <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;color:#1a3560;padding:20px;background:#fff;font-size:13px}
   .hdr{background:#1a3560;color:#fff;padding:14px 18px;border-radius:8px;margin-bottom:14px}.hdr h1{font-size:18px;margin-bottom:3px}.meta{font-size:11px;opacity:.8}
-  .ess{background:#1a3560;color:#fff;padding:14px 16px;border-radius:8px;margin-bottom:14px}.ess h3{font-size:11px;opacity:.7;margin-bottom:4px}.ess h2{font-size:15px;margin-bottom:8px}.ess p{font-size:12px;line-height:1.8;opacity:.9}.theme{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:3px 12px;font-size:11px;margin-top:8px}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.card{border:1px solid #c0d4f0;border-radius:8px;padding:12px;margin-bottom:12px}.ct{font-size:13px;font-weight:700;color:#1a3560;border-bottom:2px solid #1a3560;padding-bottom:5px;margin-bottom:8px}
-  .si{padding:7px 10px;background:#f5f8fd;border-radius:6px;margin-bottom:7px}.si label{font-size:11px;color:#4a6a9a;display:block;margin-bottom:2px}.si .v{font-size:13px;font-weight:600}
+  .ess{background:#1a3560;color:#fff;padding:14px 16px;border-radius:8px;margin-bottom:14px;page-break-inside:avoid;break-inside:avoid}.ess h3{font-size:11px;opacity:.7;margin-bottom:4px}.ess h2{font-size:15px;margin-bottom:8px}.ess p{font-size:12px;line-height:1.8;opacity:.9}.theme{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:3px 12px;font-size:11px;margin-top:8px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.card{border:1px solid #c0d4f0;border-radius:8px;padding:12px;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}.ct{font-size:13px;font-weight:700;color:#1a3560;border-bottom:2px solid #1a3560;padding-bottom:5px;margin-bottom:8px;page-break-after:avoid;break-after:avoid}
+  .si{padding:7px 10px;background:#f5f8fd;border-radius:6px;margin-bottom:7px;page-break-inside:avoid;break-inside:avoid}.si label{font-size:11px;color:#4a6a9a;display:block;margin-bottom:2px}.si .v{font-size:13px;font-weight:600}
   .badge{display:inline-block;background:#e07b2c;color:#fff;padding:3px 12px;border-radius:12px;font-size:12px}
+  /* 項目の途中でページが割れないようにする */
+  .pb{page-break-inside:avoid;break-inside:avoid}
   .page-break{page-break-before:always;padding-top:20px}
   @media print{.hdr,.ess{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>`);
   pw.document.write(`<div class="hdr"><h1>コンサルスキル診断結果</h1><div class="meta">対象者：${d.tName}　評価者：${d.eName}　評価日：${d.eDate}${d.team?'　所属：'+d.team:''}</div></div>`);
@@ -2022,10 +2085,11 @@ function exportPDF(){
 }
 
 // ===== イベント登録 =====
-document.getElementById('startBtn').addEventListener('click', () => showPage('page-input'));
+document.getElementById('startBtn').addEventListener('click', () => { setDiagMode('full'); showPage('page-input'); });
+document.getElementById('simpleStartBtn').addEventListener('click', () => { setDiagMode('simple'); showPage('page-input'); });
 document.getElementById('aboutBtn').addEventListener('click', () => showPage('page-guide'));
 document.getElementById('backToTopBtn').addEventListener('click', () => showPage('page-top'));
-document.getElementById('guideToInputBtn').addEventListener('click', () => showPage('page-input'));
+document.getElementById('guideToInputBtn').addEventListener('click', () => { setDiagMode('full'); showPage('page-input'); });
 document.getElementById('guideToTopBtn').addEventListener('click', () => showPage('page-top'));
 
 // ─── タブ切替 ───

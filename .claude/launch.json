@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8766"],
       "port": 8766
+    },
+    {
+      "name": "asa-demo",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8731", "-d", "C:/Users/shoke/OneDrive/デスクトップ/ASAサンプル"],
+      "port": 8731
     }
   ]
 }
